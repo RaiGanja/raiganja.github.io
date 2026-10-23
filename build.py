@@ -2,12 +2,14 @@
 import html as H
 import json
 import os
+import re
 import sys
 
 import content as C
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = {l: f'{C.PREFIX[l]}index.html' for l in C.LANGS}
+OUT_404 = {l: f'{C.PREFIX[l]}404.html' for l in C.LANGS}
 CF_BEACON_TOKEN = ''
 
 
@@ -177,14 +179,15 @@ def tiles(lang):
     return ''.join(out)
 
 
-def body(lang):
+def body(lang, nf=False):
     t, g = C.T[lang], C.GAMES[0]
+    h1, lead = (t['nf_h'], t['nf_lead']) if nf else (t['h1'], t['lead'])
     return f'''<header class="top wrap">
 <a class="logo" href="/{C.PREFIX[lang]}"><img src="/wow/assets/icons/icon-192.png" alt="" width="32" height="32"><span>Gabella</span></a>
 {lang_switch(lang)}
 </header>
 <main>
-<div class="intro wrap"><h1>{esc(t["h1"])}</h1><p>{esc(t["lead"])}</p></div>
+<div class="intro wrap"><h1>{esc(h1)}</h1><p>{esc(lead)}</p></div>
 <section class="hero wrap" aria-labelledby="g-{g["id"]}">
 {hero_pic(g["art"])}
 <div class="hero-txt">
@@ -352,7 +355,7 @@ def robots():
     return f'User-agent: *\nAllow: /\n\nSitemap: {C.SITE}/sitemap.xml\nSitemap: {C.SITE}/wow/sitemap.xml\n'
 
 
-def render(lang):
+def render(lang, nf=False):
     if len(C.GAMES) != 1:
         sys.exit('build.py: в GAMES больше одной игры — сначала нужна сетка игр (спека, «Следующая игра»)')
     t = C.T[lang]
@@ -362,7 +365,7 @@ def render(lang):
     subs = {
         '/*@@JS@@*/': js(),
         '/*@@CSS@@*/': css(),
-        '@@BODY@@': body(lang),
+        '@@BODY@@': body(lang, nf),
         '@@LD@@': json_ld(lang),
         '@@HREFLANG@@': hreflang(),
         '@@OG_ALTLOC@@': alt_loc,
@@ -377,11 +380,44 @@ def render(lang):
     for k, v in subs.items():
         page = page.replace(k, v)
     page = page.replace('</body>', beacon() + '</body>', 1)
-    if lang == 'ru':
+    if lang == 'ru' and not nf:
         page = page.replace('<meta name="viewport"', auto_lang() + '<meta name="viewport"', 1)
     if '@@' in page:
         sys.exit(f'build.py: в странице {lang} остались плейсхолдеры @@')
     return page
+
+
+NF_JS = r'''<script>
+(function () {
+  if (/bot|crawl|spider|slurp|lighthouse|headless|google-|preview/i.test(navigator.userAgent) || navigator.webdriver) return;
+  var P = @@LANGS@@, A = { be: 'ru', kk: 'ru' }, m = location.pathname.match(/^\/([a-z]{2})\//), w = m && m[1];
+  if (P.indexOf(w) < 0) {
+    w = null;
+    try { w = localStorage.getItem('gabella-lang'); } catch (e) {}
+    var L = navigator.languages || [navigator.language];
+    for (var i = 0; i < L.length && P.indexOf(w) < 0 && w !== 'ru'; i++) { w = String(L[i] || '').toLowerCase().split('-')[0]; w = A[w] || w; }
+    if (P.indexOf(w) < 0 && w !== 'ru') w = 'en';
+  }
+  if (P.indexOf(w) < 0) return;
+  document.documentElement.style.visibility = 'hidden';
+  fetch('/' + w + '/404.html').then(function (r) { if (!r.ok) throw r; return r.text(); })
+    .then(function (h) { document.open(); document.write(h); document.close(); })
+    .catch(function () { document.documentElement.style.visibility = ''; });
+})();
+</script>
+'''
+
+
+def render_404(lang):
+    """404.html: главная хаба с заголовком «Страница не найдена» — не индексируется и не каноническая.
+    Корневая (русская) до отрисовки подменяет себя страницей языка из адреса, выбора в меню или браузера."""
+    page = render(lang, nf=True)
+    page = re.sub(r'<link rel="(canonical|alternate)"[^>]*>\n', '', page)
+    page = re.sub(r'<meta property="og:(url|locale:alternate)"[^>]*>\n', '', page)
+    page = re.sub(r'<script type="application/ld\+json">.*?</script>\n?', '', page, flags=re.S)
+    page = page.replace(f'<title>{esc(C.T[lang]["title"])}</title>', f'<title>{esc(C.T[lang]["nf_h"])} · Gabella</title>', 1)
+    js = NF_JS.replace('@@LANGS@@', json.dumps([l for l in C.LANGS if l != 'ru'])) if lang == 'ru' else ''
+    return page.replace('<meta charset="utf-8">\n', '<meta charset="utf-8">\n' + js + '<meta name="robots" content="noindex">\n', 1)
 
 
 def write(rel, text):
@@ -394,6 +430,7 @@ def write(rel, text):
 def main():
     for lang in C.LANGS:
         write(OUT[lang], render(lang))
+        write(OUT_404[lang], render_404(lang))
     write('sitemap.xml', sitemap())
     write('robots.txt', robots())
     print('hub: собрано', ', '.join(OUT.values()))

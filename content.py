@@ -78,6 +78,8 @@ T = {
         'og_alt': 'Gabella — гайды по играм: WoW Forever',
         'og_sub': 'Гайды по играм · WoW Forever',
         'lang_nav': 'Язык',
+        'nf_h': 'Страница не найдена',
+        'nf_lead': 'Такой страницы нет: ссылка устарела или в адресе опечатка. Разделы гида ниже.',
     },
     'en': {
         'title': 'Gabella — Game Guides: WoW Forever',
@@ -97,6 +99,8 @@ T = {
         'og_alt': 'Gabella — Game Guides: WoW Forever',
         'og_sub': 'Game guides · WoW Forever',
         'lang_nav': 'Language',
+        'nf_h': 'Page not found',
+        'nf_lead': 'This page does not exist: the link is outdated or the address has a typo. The guide sections are below.',
     },
     'uk': {
         'title': 'Gabella — гайди з ігор: WoW Forever',
@@ -116,6 +120,8 @@ T = {
         'og_alt': 'Gabella — гайди з ігор: WoW Forever',
         'og_sub': 'Гайди з ігор · WoW Forever',
         'lang_nav': 'Мова',
+        'nf_h': 'Сторінку не знайдено',
+        'nf_lead': 'Такої сторінки немає: посилання застаріло або в адресі помилка. Розділи гіда нижче.',
     },
     'de': {
         'title': 'Gabella — Spiel-Guides: WoW Forever',
@@ -135,6 +141,8 @@ T = {
         'og_alt': 'Gabella — Spiel-Guides: WoW Forever',
         'og_sub': 'Spiel-Guides · WoW Forever',
         'lang_nav': 'Sprache',
+        'nf_h': 'Seite nicht gefunden',
+        'nf_lead': 'Diese Seite gibt es nicht: Der Link ist veraltet oder die Adresse hat einen Tippfehler. Die Bereiche des Guides findest du unten.',
     },
     'fr': {
         'title': 'Gabella — guides de jeux : WoW Forever',
@@ -154,6 +162,8 @@ T = {
         'og_alt': 'Gabella — guides de jeux : WoW Forever',
         'og_sub': 'Guides de jeux · WoW Forever',
         'lang_nav': 'Langue',
+        'nf_h': 'Page introuvable',
+        'nf_lead': 'Cette page n’existe pas : le lien est périmé ou l’adresse contient une faute. Les sections du guide sont ci-dessous.',
     },
     'es': {
         'title': 'Gabella — guías de juegos: WoW Forever',
@@ -173,6 +183,8 @@ T = {
         'og_alt': 'Gabella — guías de juegos: WoW Forever',
         'og_sub': 'Guías de juegos · WoW Forever',
         'lang_nav': 'Idioma',
+        'nf_h': 'Página no encontrada',
+        'nf_lead': 'Esta página no existe: el enlace está desactualizado o la dirección tiene una errata. Abajo tienes las secciones de la guía.',
     },
     'pt': {
         'title': 'Gabella — guias de jogos: WoW Forever',
@@ -192,6 +204,8 @@ T = {
         'og_alt': 'Gabella — guias de jogos: WoW Forever',
         'og_sub': 'Guias de jogos · WoW Forever',
         'lang_nav': 'Idioma',
+        'nf_h': 'Página não encontrada',
+        'nf_lead': 'Esta página não existe: o link está desatualizado ou o endereço tem um erro de digitação. As seções do guia estão abaixo.',
     },
     'it': {
         'title': 'Gabella — guide di gioco: WoW Forever',
@@ -211,6 +225,8 @@ T = {
         'og_alt': 'Gabella — guide di gioco: WoW Forever',
         'og_sub': 'Guide di gioco · WoW Forever',
         'lang_nav': 'Lingua',
+        'nf_h': 'Pagina non trovata',
+        'nf_lead': 'Questa pagina non esiste: il link è vecchio o l’indirizzo contiene un errore. Le sezioni della guida sono qui sotto.',
     },
     'pl': {
         'title': 'Gabella — poradniki do gier: WoW Forever',
@@ -230,5 +246,7 @@ T = {
         'og_alt': 'Gabella — poradniki do gier: WoW Forever',
         'og_sub': 'Poradniki do gier · WoW Forever',
         'lang_nav': 'Język',
+        'nf_h': 'Nie znaleziono strony',
+        'nf_lead': 'Ta strona nie istnieje: link jest nieaktualny albo w adresie jest literówka. Sekcje poradnika są poniżej.',
     },
 }

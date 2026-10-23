@@ -90,6 +90,32 @@ class HeadTest(unittest.TestCase):
             self.assertNotEqual(content.T[lang]['h1'], content.T['ru']['h1'], lang)
 
 
+class NotFoundTest(unittest.TestCase):
+    """404.html: GitHub Pages отдаёт её на любой несуществующий адрес вне /wow/ (у гида своя)."""
+    def test_page_per_language(self):
+        for lang in content.LANGS:
+            html = build.render_404(lang)
+            self.assertIn(f'<h1>{build.esc(content.T[lang]["nf_h"])}</h1>', html, lang)
+            self.assertIn('<meta name="robots" content="noindex">', html, lang)
+            self.assertNotIn('rel="canonical"', html, lang)
+            self.assertNotIn('hreflang="x-default"', html, lang)
+            self.assertNotIn('og:url', html, lang)
+            self.assertNotIn('@@', html, lang)
+            self.assertIn(f'href="{build.guide(lang)}"', html, lang)   # вход в гид на своём языке
+            self.assertNotIn("location.replace(P[w]", html, lang)       # корневой переход на язык не нужен
+
+    def test_root_swaps_language(self):
+        ru = build.render_404('ru')
+        self.assertLess(ru.index("fetch('/' + w + '/404.html')"), ru.index('<title>'))
+        for lang in content.LANGS[1:]:
+            self.assertIn(f'"{lang}"', ru)
+            self.assertNotIn("fetch('/' + w", build.render_404(lang), lang)
+
+    def test_written(self):
+        self.assertEqual(build.OUT_404['ru'], '404.html')
+        self.assertEqual(build.OUT_404['de'], 'de/404.html')
+
+
 class BodyTest(unittest.TestCase):
     def test_section_links_follow_language(self):
         for lang in content.LANGS:
