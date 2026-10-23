@@ -163,7 +163,7 @@ class BodyTest(unittest.TestCase):
     def test_no_forbidden_words(self):
         for lang in content.LANGS:
             low = build.render(lang).lower()
-            for w in ('discord', 'дискорд', ' ai ', ' ии ', 'claude', 'kaeris'):
+            for w in (' ai ', ' ии ', 'claude', 'kaeris'):   # Discord разрешён с 23.10: ссылка в подвале
                 self.assertNotIn(w, low, (lang, w))
 
 
@@ -190,6 +190,7 @@ class SeoTest(unittest.TestCase):
         self.assertEqual(data['url'], 'https://gabella.site/en/')
         self.assertEqual(data['inLanguage'], 'en')
         self.assertEqual(data['hasPart'][0]['url'], 'https://gabella.site/wow/en/')
+        self.assertEqual(data['publisher']['sameAs'], ['https://discord.gg/Zd45sNHy9x'])
 
     def test_sitemap(self):
         root = ET.fromstring(build.sitemap())

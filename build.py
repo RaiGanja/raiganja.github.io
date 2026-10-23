@@ -215,7 +215,7 @@ def body(lang, nf=False):
 </section>
 </main>
 <footer class="foot wrap">
-<p>© Gabella · <a href="{guide(lang)}">{esc(t["guide_link"])}</a></p>
+<p>© Gabella · <a href="{guide(lang)}">{esc(t["guide_link"])}</a> · <a href="{C.DISCORD}" target="_blank" rel="noopener">Discord</a></p>
 {lang_foot(lang)}
 <p class="tm">{esc(t["disclaimer"])}</p>
 </footer>'''
@@ -340,6 +340,8 @@ def json_ld(lang):
         '@context': 'https://schema.org', '@type': 'WebSite', 'name': 'Gabella',
         'url': url(lang), 'inLanguage': C.HREFLANG[lang], 'description': C.T[lang]['desc'],
         'hasPart': [{'@type': 'WebSite', 'name': g['name'][lang], 'url': C.SITE + guide(lang)}],
+        'publisher': {'@type': 'Organization', 'name': 'Gabella', 'url': C.SITE + '/', 'logo': C.SITE + '/wow/assets/icons/icon-512.png',
+                      'sameAs': [C.DISCORD]},
     }
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + '</script>'
 

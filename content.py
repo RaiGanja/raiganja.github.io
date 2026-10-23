@@ -7,6 +7,7 @@ LOCALE = {'ru': 'ru_RU', 'en': 'en_US', 'uk': 'uk_UA', 'de': 'de_DE', 'fr': 'fr_
 AUTONYM = {'ru': 'Русский', 'en': 'English', 'uk': 'Українська', 'de': 'Deutsch', 'fr': 'Français', 'es': 'Español',
            'pt': 'Português (Brasil)', 'it': 'Italiano', 'pl': 'Polski'}
 RELEASE = '2026-11-04T00:00:00'
+DISCORD = 'https://discord.gg/Zd45sNHy9x'   # постоянное приглашение на сервер Gabella Team (то же в wfpages/build.py)
 
 # Подсказка по языку браузера (как в гиде): текст, ссылка, кнопка закрытия — на языке посетителя
 HINT = {
