@@ -180,7 +180,7 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
 .hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
   background: linear-gradient(180deg, rgba(10,11,13,0) 30%, rgba(10,11,13,.55) 60%, rgba(10,11,13,.95) 100%); }
 .hero-txt { padding: clamp(20px, 4vw, 40px); display: grid; gap: 10px; justify-items: start; }
-.meta { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 10px; }
+.meta { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: .5em; row-gap: 2px; }
 .new { color: var(--gold-2); font-weight: 600; font-size: 1.05rem; }
 .dot { color: var(--muted); }
 .hero h2 { font-size: clamp(2.2rem, 6vw, 4.2rem); text-shadow: 0 2px 18px rgba(0,0,0,.6); }
@@ -211,6 +211,7 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
 .foot p { margin: 0; }
 .foot .tm { font-size: .8rem; opacity: .8; }
 :focus-visible { outline: 2px solid var(--gold-2); outline-offset: 2px; }
+@media (max-width: 719px) { .meta .dot { display: none; } }
 @media (max-width: 1023px) {
   .tiles { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 46%; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 14px; overscroll-behavior-x: contain; }
   .tile { scroll-snap-align: start; }
