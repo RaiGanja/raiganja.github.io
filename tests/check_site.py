@@ -4,6 +4,7 @@ import os
 import http.client
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -56,13 +57,15 @@ def main():
         UA = {'User-Agent': 'Mozilla/5.0 (gabella-hub check_site)'}   # Cloudflare не пускает Python-urllib
         for ref in sorted(refs):
             code = None
-            for attempt in range(2):
+            for attempt in range(3):
                 try:
                     code = urllib.request.urlopen(urllib.request.Request(C.SITE + ref, method='HEAD', headers=UA), timeout=20).status
                     break
                 except urllib.error.HTTPError as e:
                     code = e.code
-                    break
+                    if (code not in (403, 429) and code < 500) or attempt == 2:
+                        break
+                    time.sleep(5 * (attempt + 1))   # после сотен запросов (check_site гида) хостинг ненадолго отвечает 403
                 except (urllib.error.URLError, OSError, http.client.HTTPException) as e:
                     code = f'ошибка сети: {e}'
             check(code == 200, f'live {ref}: {code}')
