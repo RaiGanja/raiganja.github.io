@@ -141,5 +141,16 @@ class SeoTest(unittest.TestCase):
         self.assertNotIn('cloudflareinsights', build.render('ru'))
 
 
+class OgTest(unittest.TestCase):
+    def test_og_files(self):
+        from PIL import Image
+        for lang in content.LANGS:
+            path = os.path.join(build.ROOT, 'assets', f'og-{lang}.jpg')
+            self.assertTrue(os.path.exists(path), path)
+            with Image.open(path) as im:
+                self.assertEqual(im.size, (1200, 630))
+                self.assertEqual(im.format, 'JPEG')
+
+
 if __name__ == '__main__':
     unittest.main()
