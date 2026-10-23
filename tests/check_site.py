@@ -1,6 +1,7 @@
 """Проверка собранного хаба: python tests/check_site.py [--live]
 --live: каждая ссылка и ассет /wow/... со страниц хаба отвечает 200 на https://gabella.site"""
 import os
+import http.client
 import re
 import sys
 import urllib.error
@@ -52,10 +53,16 @@ def main():
     check(read('CNAME').strip() == 'gabella.site', 'CNAME')
     if live:
         for ref in sorted(refs):
-            try:
-                code = urllib.request.urlopen(urllib.request.Request(C.SITE + ref, method='HEAD'), timeout=20).status
-            except urllib.error.HTTPError as e:
-                code = e.code
+            code = None
+            for attempt in range(2):
+                try:
+                    code = urllib.request.urlopen(urllib.request.Request(C.SITE + ref, method='HEAD'), timeout=20).status
+                    break
+                except urllib.error.HTTPError as e:
+                    code = e.code
+                    break
+                except (urllib.error.URLError, OSError, http.client.HTTPException) as e:
+                    code = f'ошибка сети: {e}'
             check(code == 200, f'live {ref}: {code}')
         print(f'live: проверено {len(refs)} адресов /wow/')
     if fails:

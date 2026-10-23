@@ -110,9 +110,8 @@ def body(lang):
 <section class="hero wrap" aria-labelledby="g-{g["id"]}">
 {hero_pic(g["art"])}
 <div class="hero-txt">
-<span class="new">{esc(t["new"])}</span>
 <h2 id="g-{g["id"]}">{esc(g["name"][lang])}</h2>
-<span id="cd" class="cd" data-at="{C.RELEASE}" data-left="{esc(t["rel_left"])}" data-done="{esc(t["rel_done"])}">{esc(t["rel_static"])}</span>
+<p class="meta"><span class="new">{esc(t["new"])}</span><span aria-hidden="true" class="dot">·</span><span id="cd" class="cd" data-at="{C.RELEASE}" data-left="{esc(t["rel_left"])}" data-done="{esc(t["rel_done"])}">{esc(t["rel_static"])}</span></p>
 <a href="{guide(lang)}" class="hero-cta">{esc(t["open"])}</a>
 </div>
 </section>
@@ -181,7 +180,9 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
 .hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
   background: linear-gradient(180deg, rgba(10,11,13,0) 30%, rgba(10,11,13,.55) 60%, rgba(10,11,13,.95) 100%); }
 .hero-txt { padding: clamp(20px, 4vw, 40px); display: grid; gap: 10px; justify-items: start; }
-.new { color: var(--gold-2); font-weight: 600; font-size: .95rem; }
+.meta { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 10px; }
+.new { color: var(--gold-2); font-weight: 600; font-size: 1.05rem; }
+.dot { color: var(--muted); }
 .hero h2 { font-size: clamp(2.2rem, 6vw, 4.2rem); text-shadow: 0 2px 18px rgba(0,0,0,.6); }
 .cd { font: 700 1.25rem/1.2 var(--font-display); letter-spacing: .03em; font-variant-numeric: tabular-nums; }
 .hero-cta { margin-top: 6px; padding: 12px 22px; border-radius: 8px; background: var(--gold); color: var(--gold-ink);

@@ -62,7 +62,9 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
 .hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
   background: linear-gradient(180deg, rgba(10,11,13,0) 30%, rgba(10,11,13,.55) 60%, rgba(10,11,13,.95) 100%); }
 .hero-txt { padding: clamp(20px, 4vw, 40px); display: grid; gap: 10px; justify-items: start; }
-.new { color: var(--gold-2); font-weight: 600; font-size: .95rem; }
+.meta { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 10px; }
+.new { color: var(--gold-2); font-weight: 600; font-size: 1.05rem; }
+.dot { color: var(--muted); }
 .hero h2 { font-size: clamp(2.2rem, 6vw, 4.2rem); text-shadow: 0 2px 18px rgba(0,0,0,.6); }
 .cd { font: 700 1.25rem/1.2 var(--font-display); letter-spacing: .03em; font-variant-numeric: tabular-nums; }
 .hero-cta { margin-top: 6px; padding: 12px 22px; border-radius: 8px; background: var(--gold); color: var(--gold-ink);
@@ -115,9 +117,8 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
 <section class="hero wrap" aria-labelledby="g-wow">
 <picture class="hero-art"><source media="(max-width: 719px)" type="image/avif" srcset="/wow/assets/art/hero_dawn-m-600.avif 600w, /wow/assets/art/hero_dawn-m-1000.avif 1000w" sizes="100vw"><source media="(max-width: 719px)" type="image/webp" srcset="/wow/assets/art/hero_dawn-m-600.webp 600w, /wow/assets/art/hero_dawn-m-1000.webp 1000w" sizes="100vw"><source type="image/avif" srcset="/wow/assets/art/hero_dawn-960.avif 960w, /wow/assets/art/hero_dawn-1440.avif 1440w, /wow/assets/art/hero_dawn-1920.avif 1920w" sizes="(min-width: 1272px) 1240px, 100vw"><source type="image/webp" srcset="/wow/assets/art/hero_dawn-960.webp 960w, /wow/assets/art/hero_dawn-1440.webp 1440w, /wow/assets/art/hero_dawn-1920.webp 1920w" sizes="(min-width: 1272px) 1240px, 100vw"><img src="/wow/assets/art/hero_dawn-1440.webp" alt="" width="1440" height="804" fetchpriority="high" decoding="async"></picture>
 <div class="hero-txt">
-<span class="new">Новое</span>
 <h2 id="g-wow">WoW Forever</h2>
-<span id="cd" class="cd" data-at="2026-11-04T00:00:00" data-left="Релиз через %d дн %h ч" data-done="Вышла 04.11.2026">Релиз 04.11.2026</span>
+<p class="meta"><span class="new">Новое</span><span aria-hidden="true" class="dot">·</span><span id="cd" class="cd" data-at="2026-11-04T00:00:00" data-left="Релиз через %d дн %h ч" data-done="Вышла 04.11.2026">Релиз 04.11.2026</span></p>
 <a href="/wow/" class="hero-cta">Открыть гид</a>
 </div>
 </section>
