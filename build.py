@@ -28,8 +28,34 @@ def hreflang():
     return '\n'.join(links)
 
 
+JS = '''
+(() => {
+  const cd = document.getElementById('cd');
+  const ms = new Date(cd.dataset.at) - new Date();
+  if (ms > 0) {
+    const d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5);
+    cd.textContent = cd.dataset.left.replace('%d', d).replace('%h', h);
+  } else cd.textContent = cd.dataset.done;
+
+  const box = document.getElementById('news');
+  fetch('/wow/assets/news.json').then(r => r.ok ? r.json() : []).then(list => {
+    if (!Array.isArray(list) || !list.length) return;
+    const ul = box.querySelector('ul');
+    list.filter(n => n && n.date && n.title && /^https:/.test(n.url))
+      .sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5).forEach(n => {
+        const li = document.createElement('li'), t = document.createElement('time'), a = document.createElement('a');
+        t.dateTime = n.date; t.textContent = n.date.split('-').reverse().join('.');
+        a.href = n.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = n.title;
+        li.append(t, a); ul.append(li);
+      });
+    if (ul.children.length) box.hidden = false;
+  }).catch(() => {});
+})();
+'''
+
+
 def js():
-    return ''
+    return JS
 
 
 ART = '/wow/assets/art/'

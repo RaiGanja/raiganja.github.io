@@ -97,5 +97,13 @@ class BodyTest(unittest.TestCase):
                 self.assertNotIn(w, low, (lang, w))
 
 
+class JsTest(unittest.TestCase):
+    def test_script_reads_news_and_countdown(self):
+        html = build.render('ru')
+        self.assertIn("fetch('/wow/assets/news.json')", html)
+        self.assertIn("getElementById('cd')", html)
+        self.assertNotIn('innerHTML', html)
+
+
 if __name__ == '__main__':
     unittest.main()
