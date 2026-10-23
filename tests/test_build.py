@@ -1,7 +1,9 @@
+import json
 import os
 import re
 import sys
 import unittest
+import xml.etree.ElementTree as ET
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import build  # noqa: E402
@@ -109,6 +111,34 @@ class JsTest(unittest.TestCase):
         self.assertIn('[hidden] { display: none !important; }', html)
         self.assertIn(r"/^\d{4}-\d{2}-\d{2}$/.test(n.date)", html)
         self.assertIn("typeof n.title === 'string'", html)
+
+
+class SeoTest(unittest.TestCase):
+    def test_json_ld(self):
+        html = build.render('en')
+        m = re.search(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)
+        data = json.loads(m.group(1))
+        self.assertEqual(data['@type'], 'WebSite')
+        self.assertEqual(data['url'], 'https://gabella.site/en/')
+        self.assertEqual(data['inLanguage'], 'en')
+        self.assertEqual(data['hasPart'][0]['url'], 'https://gabella.site/wow/en/')
+
+    def test_sitemap(self):
+        root = ET.fromstring(build.sitemap())
+        ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9', 'x': 'http://www.w3.org/1999/xhtml'}
+        locs = [u.find('s:loc', ns).text for u in root.findall('s:url', ns)]
+        self.assertEqual(locs, ['https://gabella.site/', 'https://gabella.site/en/', 'https://gabella.site/uk/'])
+        for u in root.findall('s:url', ns):
+            self.assertEqual(len(u.findall('x:link', ns)), 4)
+
+    def test_robots(self):
+        r = build.robots()
+        self.assertIn('Sitemap: https://gabella.site/sitemap.xml', r)
+        self.assertIn('Sitemap: https://gabella.site/wow/sitemap.xml', r)
+        self.assertIn('Allow: /', r)
+
+    def test_no_beacon_without_token(self):
+        self.assertNotIn('cloudflareinsights', build.render('ru'))
 
 
 if __name__ == '__main__':

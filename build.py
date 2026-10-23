@@ -1,5 +1,6 @@
 """Сборка хаба gabella.site: python build.py"""
 import html as H
+import json
 import os
 import sys
 
@@ -226,6 +227,36 @@ def css():
     return font_faces() + CSS
 
 
+def json_ld(lang):
+    g = C.GAMES[0]
+    data = {
+        '@context': 'https://schema.org', '@type': 'WebSite', 'name': 'Gabella',
+        'url': url(lang), 'inLanguage': lang, 'description': C.T[lang]['desc'],
+        'hasPart': [{'@type': 'WebSite', 'name': g['name'][lang], 'url': C.SITE + guide(lang)}],
+    }
+    return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + '</script>'
+
+
+def beacon():
+    if not CF_BEACON_TOKEN:
+        return ''
+    b = json.dumps({'token': CF_BEACON_TOKEN})
+    return f'<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon=\'{b}\'></script>'
+
+
+def sitemap():
+    alts = ''.join(f'<xhtml:link rel="alternate" hreflang="{l}" href="{url(l)}"/>' for l in C.LANGS)
+    alts += f'<xhtml:link rel="alternate" hreflang="x-default" href="{C.SITE}/"/>'
+    urls = ''.join(f'<url><loc>{url(l)}</loc>{alts}</url>\n' for l in C.LANGS)
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+            + urls + '</urlset>\n')
+
+
+def robots():
+    return f'User-agent: *\nAllow: /\n\nSitemap: {C.SITE}/sitemap.xml\nSitemap: {C.SITE}/wow/sitemap.xml\n'
+
+
 def render(lang):
     if len(C.GAMES) != 1:
         sys.exit('build.py: в GAMES больше одной игры — сначала нужна сетка игр (спека, «Следующая игра»)')
@@ -237,6 +268,7 @@ def render(lang):
         '/*@@JS@@*/': js(),
         '/*@@CSS@@*/': css(),
         '@@BODY@@': body(lang),
+        '@@LD@@': json_ld(lang),
         '@@HREFLANG@@': hreflang(),
         '@@OG_ALTLOC@@': alt_loc,
         '@@LANG@@': lang,
@@ -249,6 +281,7 @@ def render(lang):
     }
     for k, v in subs.items():
         page = page.replace(k, v)
+    page = page.replace('</body>', beacon() + '</body>', 1)
     if '@@' in page:
         sys.exit(f'build.py: в странице {lang} остались плейсхолдеры @@')
     return page
@@ -264,6 +297,8 @@ def write(rel, text):
 def main():
     for lang in C.LANGS:
         write(OUT[lang], render(lang))
+    write('sitemap.xml', sitemap())
+    write('robots.txt', robots())
     print('hub: собрано', ', '.join(OUT.values()))
 
 
