@@ -1,4 +1,4 @@
-"""IndexNow: сообщает Bing, Яндексу и другим поисковикам об изменённых страницах сразу после выкатки.
+"""IndexNow: сообщает Bing об изменённых страницах сразу после выкатки (Яндекс не используем).
 Зовёт его .github/workflows/indexnow.yml после сборки GitHub Pages; тот же файл лежит в хабе (gabella-hub).
 Ключ публичный по замыслу IndexNow: файл https://gabella.site/<KEY>.txt лежит в корне хаба.
   python tools/indexnow.py <база> <старый коммит> <новый коммит>   — только страницы, где поменялось содержимое
@@ -10,7 +10,7 @@ import json, re, subprocess, sys, urllib.request
 
 KEY = '99c3c672b2e834d250d8c7b1dc0c34b9'
 HOST = 'gabella.site'
-ENDPOINT = 'https://api.indexnow.org/indexnow'   # общий узел: передаёт Bing, Яндексу, Seznam, Naver и др.
+ENDPOINT = 'https://www.bing.com/indexnow'   # прямо в Bing; Яндекс не используем (решение 23.10)
 
 
 def sitemap_urls():

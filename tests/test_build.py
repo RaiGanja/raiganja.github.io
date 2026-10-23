@@ -219,9 +219,9 @@ class SeoTest(unittest.TestCase):
         try:
             build.VERIFY.update({k: '' for k in build.VERIFY})
             self.assertNotIn('verification', build.render('en'))
-            build.VERIFY['yandex-verification'] = 'abc"1'
+            build.VERIFY['msvalidate.01'] = 'abc"1'
             html = build.render('en')
-            self.assertIn('<meta name="yandex-verification" content="abc&quot;1">\n</head>', html)
+            self.assertIn('<meta name="msvalidate.01" content="abc&quot;1">\n</head>', html)
         finally:
             build.VERIFY.clear(); build.VERIFY.update(saved)
 

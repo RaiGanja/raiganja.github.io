@@ -1,4 +1,4 @@
-# IndexNow: после выкатки в main ждёт сборку GitHub Pages и сообщает Bing/Яндексу изменённые страницы (tools/indexnow.py).
+# IndexNow: после выкатки в main ждёт сборку GitHub Pages и сообщает Bing изменённые страницы (tools/indexnow.py).
 # Вручную (Actions → indexnow → Run workflow, all = true) — отправить весь sitemap.xml.
 name: indexnow
 on:
