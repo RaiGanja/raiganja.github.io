@@ -55,5 +55,47 @@ class HeadTest(unittest.TestCase):
         self.assertEqual(build.guide('ru'), '/wow/')
 
 
+class BodyTest(unittest.TestCase):
+    def test_section_links_follow_language(self):
+        for lang in content.LANGS:
+            html = build.render(lang)
+            for s in content.GAMES[0]['sections']:
+                self.assertIn(f'href="{build.guide(lang)}{s["path"]}"', html, (lang, s['path']))
+
+    def test_hero_and_countdown(self):
+        for lang in content.LANGS:
+            html = build.render(lang)
+            t = content.T[lang]
+            self.assertIn(f'href="{build.guide(lang)}" class="hero-cta"', html)
+            self.assertIn(f'data-at="{content.RELEASE}"', html)
+            self.assertIn(f'>{t["rel_static"]}</span>', html)
+            self.assertIn('/wow/assets/art/hero_dawn-1440.webp', html)
+
+    def test_news_block_hidden_by_default(self):
+        html = build.render('en')
+        self.assertIn('<section id="news" class="news wrap" hidden', html)
+        self.assertIn('href="/wow/en/guides/news/" id="news-all"', html)
+
+    def test_lang_switch(self):
+        html = build.render('uk')
+        self.assertIn('<a href="/" hreflang="ru" lang="ru">RU</a>', html)
+        self.assertIn('<a href="/uk/" hreflang="uk" lang="uk" aria-current="page">UK</a>', html)
+
+    def test_fonts_from_guide(self):
+        html = build.render('ru')
+        self.assertIn('url(/wow/assets/fonts/bona-nova-sc-cyrillic.woff2)', html)
+        self.assertIn('url(/wow/assets/fonts/golos-text-latin.woff2)', html)
+
+    def test_disclaimer(self):
+        for lang in content.LANGS:
+            self.assertIn(build.esc(content.T[lang]['disclaimer']), build.render(lang))
+
+    def test_no_forbidden_words(self):
+        for lang in content.LANGS:
+            low = build.render(lang).lower()
+            for w in ('discord', 'дискорд', ' ai ', ' ии ', 'claude', 'kaeris'):
+                self.assertNotIn(w, low, (lang, w))
+
+
 if __name__ == '__main__':
     unittest.main()
