@@ -53,11 +53,12 @@ def main():
     check(read('CNAME').strip() == 'gabella.site', 'CNAME')
     check(os.path.exists(os.path.join(ROOT, '.nojekyll')), '.nojekyll: нет файла — Pages включит Jekyll')
     if live:
+        UA = {'User-Agent': 'Mozilla/5.0 (gabella-hub check_site)'}   # Cloudflare не пускает Python-urllib
         for ref in sorted(refs):
             code = None
             for attempt in range(2):
                 try:
-                    code = urllib.request.urlopen(urllib.request.Request(C.SITE + ref, method='HEAD'), timeout=20).status
+                    code = urllib.request.urlopen(urllib.request.Request(C.SITE + ref, method='HEAD', headers=UA), timeout=20).status
                     break
                 except urllib.error.HTTPError as e:
                     code = e.code
