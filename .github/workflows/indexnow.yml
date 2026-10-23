@@ -1,0 +1,38 @@
+# IndexNow: после выкатки в main ждёт сборку GitHub Pages и сообщает Bing/Яндексу изменённые страницы (tools/indexnow.py).
+# Вручную (Actions → indexnow → Run workflow, all = true) — отправить весь sitemap.xml.
+name: indexnow
+on:
+  push:
+    branches: [main]
+    paths: ['**.html', 'sitemap.xml']
+  workflow_dispatch:
+    inputs:
+      all: { description: 'Отправить весь sitemap.xml', type: boolean, default: false }
+permissions:
+  contents: read
+  pages: read
+concurrency: { group: indexnow, cancel-in-progress: false }
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Ждём сборку GitHub Pages этого коммита
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          for i in $(seq 1 60); do
+            read -r st sha <<< "$(gh api repos/${{ github.repository }}/pages/builds/latest --jq '.status + " " + .commit')"
+            echo "pages: $st $sha"
+            git fetch -q origin main || true   # the build may be of a newer commit (e.g. the news bot)
+            if [ "$st" = built ] && git merge-base --is-ancestor "${{ github.sha }}" "$sha"; then exit 0; fi
+            if [ "$st" = errored ]; then exit 1; fi
+            sleep 15
+          done
+          exit 1
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - if: ${{ github.event_name == 'workflow_dispatch' && inputs.all }}
+        run: python tools/indexnow.py https://gabella.site/ --all
+      - if: ${{ github.event_name == 'push' }}
+        run: python tools/indexnow.py https://gabella.site/ "${{ github.event.before }}" "${{ github.sha }}"

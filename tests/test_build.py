@@ -206,8 +206,34 @@ class SeoTest(unittest.TestCase):
         self.assertIn('Sitemap: https://gabella.site/wow/sitemap.xml', r)
         self.assertIn('Allow: /', r)
 
-    def test_no_beacon_without_token(self):
-        self.assertNotIn('cloudflareinsights', build.render('ru'))
+    def test_beacon_only_with_token(self):
+        self.assertIn(f'"token": "{build.CF_BEACON_TOKEN}"', build.render('ru'))
+        saved, build.CF_BEACON_TOKEN = build.CF_BEACON_TOKEN, ''
+        try:
+            self.assertNotIn('cloudflareinsights', build.render('ru'))
+        finally:
+            build.CF_BEACON_TOKEN = saved
+
+    def test_verify_meta_only_when_set(self):
+        saved = dict(build.VERIFY)
+        try:
+            build.VERIFY.update({k: '' for k in build.VERIFY})
+            self.assertNotIn('verification', build.render('en'))
+            build.VERIFY['yandex-verification'] = 'abc"1'
+            html = build.render('en')
+            self.assertIn('<meta name="yandex-verification" content="abc&quot;1">\n</head>', html)
+        finally:
+            build.VERIFY.clear(); build.VERIFY.update(saved)
+
+    def test_indexnow_key_file(self):
+        self.assertRegex(build.INDEXNOW_KEY, r'^[0-9a-f]{32}$')
+        path = os.path.join(build.ROOT, build.INDEXNOW_KEY + '.txt')
+        with open(path, encoding='utf-8') as f:
+            self.assertEqual(f.read(), build.INDEXNOW_KEY)
+        import importlib.util
+        spec = importlib.util.spec_from_file_location('indexnow', os.path.join(build.ROOT, 'tools', 'indexnow.py'))
+        mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+        self.assertEqual(mod.KEY, build.INDEXNOW_KEY)
 
 
 class OgTest(unittest.TestCase):
