@@ -1,30 +1,68 @@
 SITE = 'https://gabella.site'
-LANGS = ['ru', 'en', 'uk']
-PREFIX = {'ru': '', 'en': 'en/', 'uk': 'uk/'}
-LOCALE = {'ru': 'ru_RU', 'en': 'en_US', 'uk': 'uk_UA'}
+# Те же 9 языков, что у гида (wfpages/langs.py): ru — корень, остальные — /<lang>/; pt — бразильский
+LANGS = ['ru', 'en', 'uk', 'de', 'fr', 'es', 'pt', 'it', 'pl']
+PREFIX = {l: '' if l == 'ru' else f'{l}/' for l in LANGS}
+HREFLANG = {l: l for l in LANGS} | {'pt': 'pt-BR'}
+LOCALE = {'ru': 'ru_RU', 'en': 'en_US', 'uk': 'uk_UA', 'de': 'de_DE', 'fr': 'fr_FR', 'es': 'es_ES', 'pt': 'pt_BR', 'it': 'it_IT', 'pl': 'pl_PL'}
+AUTONYM = {'ru': 'Русский', 'en': 'English', 'uk': 'Українська', 'de': 'Deutsch', 'fr': 'Français', 'es': 'Español',
+           'pt': 'Português (Brasil)', 'it': 'Italiano', 'pl': 'Polski'}
 RELEASE = '2026-11-04T00:00:00'
 
+# Подсказка по языку браузера (как в гиде): текст, ссылка, кнопка закрытия — на языке посетителя
+HINT = {
+    'ru': ('Эта страница есть на русском', 'Читать по-русски', 'Закрыть'),
+    'en': ('This page is available in English', 'Read in English', 'Close'),
+    'uk': ('Ця сторінка є українською', 'Читати українською', 'Закрити'),
+    'de': ('Diese Seite gibt es auch auf Deutsch', 'Auf Deutsch lesen', 'Schließen'),
+    'fr': ('Cette page existe aussi en français', 'Lire en français', 'Fermer'),
+    'es': ('Esta página también está en español', 'Leer en español', 'Cerrar'),
+    'pt': ('Esta página também está em português', 'Ler em português', 'Fechar'),
+    'it': ('Questa pagina è disponibile anche in italiano', 'Leggi in italiano', 'Chiudi'),
+    'pl': ('Ta strona jest dostępna po polsku', 'Czytaj po polsku', 'Zamknij'),
+}
+
+
+def _all(name):
+    return {l: name for l in LANGS}
+
+
+# Названия разделов — как в меню гида (wfpages/i18n/<lang>.json)
 GAMES = [{
     'id': 'wow',
     'path': '/wow/',
     'art': 'hero_dawn',
-    'name': {'ru': 'WoW Forever', 'en': 'WoW Forever', 'uk': 'WoW Forever'},
+    'name': _all('WoW Forever'),
     'sections': [
-        {'path': 'classes/', 'art': 'warrior', 'name': {'ru': 'Классы', 'en': 'Classes', 'uk': 'Класи'}},
-        {'path': 'races/', 'art': 'human', 'name': {'ru': 'Расы', 'en': 'Races', 'uk': 'Раси'}},
-        {'path': 'guides/leveling/', 'art': 'hunter', 'name': {'ru': 'Прокачка', 'en': 'Leveling', 'uk': 'Прокачування'}},
-        {'path': 'guides/dungeons/', 'art': 'warlock', 'name': {'ru': 'Подземелья и рейды', 'en': 'Dungeons & Raids', 'uk': 'Підземелля і рейди'}},
-        {'path': 'guides/professions/', 'art': 'hero_campfire', 'name': {'ru': 'Профессии', 'en': 'Professions', 'uk': 'Професії'}},
-        {'path': 'guides/faq/', 'art': 'mage', 'name': {'ru': 'FAQ', 'en': 'FAQ', 'uk': 'FAQ'}},
-        {'path': 'guides/news/', 'art': 'paladin', 'name': {'ru': 'Новости', 'en': 'News', 'uk': 'Новини'}},
-        {'path': 'tools/', 'art': 'priest', 'name': {'ru': 'Инструменты', 'en': 'Tools', 'uk': 'Інструменти'}},
+        {'path': 'classes/', 'art': 'warrior', 'name': {
+            'ru': 'Классы', 'en': 'Classes', 'uk': 'Класи', 'de': 'Klassen', 'fr': 'Classes', 'es': 'Clases',
+            'pt': 'Classes', 'it': 'Classi', 'pl': 'Klasy'}},
+        {'path': 'races/', 'art': 'human', 'name': {
+            'ru': 'Расы', 'en': 'Races', 'uk': 'Раси', 'de': 'Völker', 'fr': 'Races', 'es': 'Razas',
+            'pt': 'Raças', 'it': 'Razze', 'pl': 'Rasy'}},
+        {'path': 'guides/leveling/', 'art': 'hunter', 'name': {
+            'ru': 'Прокачка', 'en': 'Leveling', 'uk': 'Прокачування', 'de': 'Leveln', 'fr': 'Progression',
+            'es': 'Subida de nivel', 'pt': 'Evolução', 'it': 'Livellamento', 'pl': 'Levelowanie'}},
+        {'path': 'guides/dungeons/', 'art': 'warlock', 'name': {
+            'ru': 'Подземелья и рейды', 'en': 'Dungeons & Raids', 'uk': 'Підземелля і рейди', 'de': 'Dungeons und Raids',
+            'fr': 'Donjons et raids', 'es': 'Mazmorras y bandas', 'pt': 'Masmorras e raides',
+            'it': 'Spedizioni e incursioni', 'pl': 'Dungeony i raidy'}},
+        {'path': 'guides/professions/', 'art': 'hero_campfire', 'name': {
+            'ru': 'Профессии', 'en': 'Professions', 'uk': 'Професії', 'de': 'Berufe', 'fr': 'Métiers',
+            'es': 'Profesiones', 'pt': 'Profissões', 'it': 'Professioni', 'pl': 'Profesje'}},
+        {'path': 'guides/faq/', 'art': 'mage', 'name': _all('FAQ')},
+        {'path': 'guides/news/', 'art': 'paladin', 'name': {
+            'ru': 'Новости', 'en': 'News', 'uk': 'Новини', 'de': 'News', 'fr': 'Actualités', 'es': 'Noticias',
+            'pt': 'Notícias', 'it': 'Notizie', 'pl': 'Newsy'}},
+        {'path': 'tools/', 'art': 'priest', 'name': {
+            'ru': 'Инструменты', 'en': 'Tools', 'uk': 'Інструменти', 'de': 'Tools', 'fr': 'Outils',
+            'es': 'Herramientas', 'pt': 'Ferramentas', 'it': 'Strumenti', 'pl': 'Narzędzia'}},
     ],
 }]
 
 T = {
     'ru': {
         'title': 'Gabella — гайды по играм: WoW Forever',
-        'desc': 'Гайды по WoW Forever: все классы и расы, прокачка, подземелья и рейды, профессии, FAQ, новости и инструменты для группы. На русском, английском и украинском.',
+        'desc': 'Гайды по WoW Forever: все классы и расы, прокачка, подземелья и рейды, профессии, FAQ, новости и инструменты для группы. На 9 языках.',
         'h1': 'Гайды по играм',
         'lead': 'Разборы классов и рас, маршруты прокачки, подземелья и инструменты для группы.',
         'new': 'Новое',
@@ -43,7 +81,7 @@ T = {
     },
     'en': {
         'title': 'Gabella — Game Guides: WoW Forever',
-        'desc': 'WoW Forever guides: every class and race, leveling, dungeons and raids, professions, FAQ, news and group tools. In English, Russian and Ukrainian.',
+        'desc': 'WoW Forever guides: every class and race, leveling, dungeons and raids, professions, FAQ, news and group tools. In 9 languages.',
         'h1': 'Game guides',
         'lead': 'Class and race breakdowns, leveling routes, dungeons and tools for your group.',
         'new': 'New',
@@ -62,7 +100,7 @@ T = {
     },
     'uk': {
         'title': 'Gabella — гайди з ігор: WoW Forever',
-        'desc': 'Гайди з WoW Forever: усі класи й раси, прокачування, підземелля і рейди, професії, FAQ, новини та інструменти для групи. Українською, англійською та російською.',
+        'desc': 'Гайди з WoW Forever: усі класи й раси, прокачування, підземелля і рейди, професії, FAQ, новини та інструменти для групи. Дев’ятьма мовами.',
         'h1': 'Гайди з ігор',
         'lead': 'Розбори класів і рас, маршрути прокачування, підземелля та інструменти для групи.',
         'new': 'Нове',
@@ -78,5 +116,119 @@ T = {
         'og_alt': 'Gabella — гайди з ігор: WoW Forever',
         'og_sub': 'Гайди з ігор · WoW Forever',
         'lang_nav': 'Мова',
+    },
+    'de': {
+        'title': 'Gabella — Spiel-Guides: WoW Forever',
+        'desc': 'Guides zu WoW Forever: alle Klassen und Völker, Leveln, Dungeons und Raids, Berufe, FAQ, News und Tools für die Gruppe. In 9 Sprachen.',
+        'h1': 'Spiel-Guides',
+        'lead': 'Klassen und Völker im Detail, Leveling-Routen, Dungeons und Tools für deine Gruppe.',
+        'new': 'Neu',
+        'open': 'Guide öffnen',
+        'rel_static': 'Release 04.11.2026',
+        'rel_left': 'Release in %d T. %h Std.',
+        'rel_done': 'Erschienen am 04.11.2026',
+        'sections_h': 'Bereiche des Guides',
+        'news_h': 'Aktuelle News',
+        'news_all': 'Alle News',
+        'guide_link': 'WoW-Forever-Guide',
+        'disclaimer': 'World of Warcraft ist eine Marke von Blizzard Entertainment. Inoffizielle Seite, nicht mit Blizzard verbunden.',
+        'og_alt': 'Gabella — Spiel-Guides: WoW Forever',
+        'og_sub': 'Spiel-Guides · WoW Forever',
+        'lang_nav': 'Sprache',
+    },
+    'fr': {
+        'title': 'Gabella — guides de jeux : WoW Forever',
+        'desc': 'Guides WoW Forever : toutes les classes et races, progression, donjons et raids, métiers, FAQ, actualités et outils de groupe. En 9 langues.',
+        'h1': 'Guides de jeux',
+        'lead': 'Classes et races en détail, itinéraires de progression, donjons et outils pour votre groupe.',
+        'new': 'Nouveau',
+        'open': 'Ouvrir le guide',
+        'rel_static': 'Sortie le 04.11.2026',
+        'rel_left': 'Sortie dans %d j %h h',
+        'rel_done': 'Sorti le 04.11.2026',
+        'sections_h': 'Sections du guide',
+        'news_h': 'Dernières actualités',
+        'news_all': 'Toutes les actualités',
+        'guide_link': 'Guide WoW Forever',
+        'disclaimer': 'World of Warcraft est une marque de Blizzard Entertainment. Site non officiel, sans lien avec Blizzard.',
+        'og_alt': 'Gabella — guides de jeux : WoW Forever',
+        'og_sub': 'Guides de jeux · WoW Forever',
+        'lang_nav': 'Langue',
+    },
+    'es': {
+        'title': 'Gabella — guías de juegos: WoW Forever',
+        'desc': 'Guías de WoW Forever: todas las clases y razas, subida de nivel, mazmorras y bandas, profesiones, FAQ, noticias y herramientas para el grupo. En 9 idiomas.',
+        'h1': 'Guías de juegos',
+        'lead': 'Clases y razas a fondo, rutas de subida de nivel, mazmorras y herramientas para tu grupo.',
+        'new': 'Nuevo',
+        'open': 'Abrir la guía',
+        'rel_static': 'Lanzamiento 04.11.2026',
+        'rel_left': 'Lanzamiento en %d d %h h',
+        'rel_done': 'Lanzado el 04.11.2026',
+        'sections_h': 'Secciones de la guía',
+        'news_h': 'Últimas noticias',
+        'news_all': 'Todas las noticias',
+        'guide_link': 'Guía de WoW Forever',
+        'disclaimer': 'World of Warcraft es una marca de Blizzard Entertainment. Sitio no oficial, sin relación con Blizzard.',
+        'og_alt': 'Gabella — guías de juegos: WoW Forever',
+        'og_sub': 'Guías de juegos · WoW Forever',
+        'lang_nav': 'Idioma',
+    },
+    'pt': {
+        'title': 'Gabella — guias de jogos: WoW Forever',
+        'desc': 'Guias de WoW Forever: todas as classes e raças, evolução, masmorras e raides, profissões, FAQ, notícias e ferramentas para o grupo. Em 9 idiomas.',
+        'h1': 'Guias de jogos',
+        'lead': 'Classes e raças em detalhe, rotas de evolução, masmorras e ferramentas para o seu grupo.',
+        'new': 'Novo',
+        'open': 'Abrir o guia',
+        'rel_static': 'Lançamento 04.11.2026',
+        'rel_left': 'Lançamento em %d d %h h',
+        'rel_done': 'Lançado em 04.11.2026',
+        'sections_h': 'Seções do guia',
+        'news_h': 'Últimas notícias',
+        'news_all': 'Todas as notícias',
+        'guide_link': 'Guia de WoW Forever',
+        'disclaimer': 'World of Warcraft é uma marca da Blizzard Entertainment. Site não oficial, sem vínculo com a Blizzard.',
+        'og_alt': 'Gabella — guias de jogos: WoW Forever',
+        'og_sub': 'Guias de jogos · WoW Forever',
+        'lang_nav': 'Idioma',
+    },
+    'it': {
+        'title': 'Gabella — guide di gioco: WoW Forever',
+        'desc': 'Guide a WoW Forever: tutte le classi e razze, livellamento, spedizioni e incursioni, professioni, FAQ, notizie e strumenti per il gruppo. In 9 lingue.',
+        'h1': 'Guide di gioco',
+        'lead': 'Classi e razze nel dettaglio, percorsi di livellamento, spedizioni e strumenti per il tuo gruppo.',
+        'new': 'Novità',
+        'open': 'Apri la guida',
+        'rel_static': 'Uscita 04.11.2026',
+        'rel_left': 'Uscita tra %d g %h h',
+        'rel_done': 'Uscito il 04.11.2026',
+        'sections_h': 'Sezioni della guida',
+        'news_h': 'Ultime notizie',
+        'news_all': 'Tutte le notizie',
+        'guide_link': 'Guida a WoW Forever',
+        'disclaimer': 'World of Warcraft è un marchio di Blizzard Entertainment. Sito non ufficiale, non affiliato a Blizzard.',
+        'og_alt': 'Gabella — guide di gioco: WoW Forever',
+        'og_sub': 'Guide di gioco · WoW Forever',
+        'lang_nav': 'Lingua',
+    },
+    'pl': {
+        'title': 'Gabella — poradniki do gier: WoW Forever',
+        'desc': 'Poradniki do WoW Forever: wszystkie klasy i rasy, levelowanie, dungeony i raidy, profesje, FAQ, newsy i narzędzia dla drużyny. W 9 językach.',
+        'h1': 'Poradniki do gier',
+        'lead': 'Klasy i rasy w szczegółach, trasy levelowania, dungeony i narzędzia dla drużyny.',
+        'new': 'Nowość',
+        'open': 'Otwórz poradnik',
+        'rel_static': 'Premiera 04.11.2026',
+        'rel_left': 'Premiera za %d d %h h',
+        'rel_done': 'Premiera była 04.11.2026',
+        'sections_h': 'Działy poradnika',
+        'news_h': 'Najnowsze newsy',
+        'news_all': 'Wszystkie newsy',
+        'guide_link': 'Poradnik WoW Forever',
+        'disclaimer': 'World of Warcraft jest znakiem towarowym Blizzard Entertainment. Strona nieoficjalna, niezwiązana z Blizzard.',
+        'og_alt': 'Gabella — poradniki do gier: WoW Forever',
+        'og_sub': 'Poradniki do gier · WoW Forever',
+        'lang_nav': 'Język',
     },
 }

@@ -1,4 +1,4 @@
-"""Превью ссылок хаба: python tools/make_og.py -> assets/og-{ru,en,uk}.jpg (1200x630)"""
+"""Превью ссылок хаба: python tools/make_og.py [--langs=de,fr] -> assets/og-<lang>.jpg (1200x630); без --langs — все языки"""
 import os
 import subprocess
 import sys
@@ -22,8 +22,10 @@ def page(lang):
     return f'''<!doctype html><meta charset="utf-8"><style>
 @font-face{{font-family:"Bona Nova SC";font-weight:700;src:url({f("fonts/bona-nova-sc-cyrillic.woff2")});unicode-range:U+0400-045F,U+0490-0491}}
 @font-face{{font-family:"Bona Nova SC";font-weight:700;src:url({f("fonts/bona-nova-sc-latin.woff2")});unicode-range:U+0000-00FF,U+2000-206F}}
+@font-face{{font-family:"Bona Nova SC";font-weight:700;src:url({f("fonts/bona-nova-sc-latin-ext.woff2")});unicode-range:U+0100-024F}}
 @font-face{{font-family:"Golos Text";src:url({f("fonts/golos-text-cyrillic.woff2")});unicode-range:U+0400-045F,U+0490-0491}}
 @font-face{{font-family:"Golos Text";src:url({f("fonts/golos-text-latin.woff2")});unicode-range:U+0000-00FF,U+2000-206F}}
+@font-face{{font-family:"Golos Text";src:url({f("fonts/golos-text-latin-ext.woff2")});unicode-range:U+0100-024F}}
 *{{margin:0;box-sizing:border-box}}
 body{{width:1200px;height:630px;position:relative;overflow:hidden;background:#0a0b0d;color:#ece6d8;font-family:"Golos Text"}}
 img{{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%}}
@@ -49,7 +51,8 @@ def shoot(html, out):
 
 def main():
     os.makedirs(os.path.join(HUB, 'assets'), exist_ok=True)
-    for lang in C.LANGS:
+    arg = next((a.split('=', 1)[1] for a in sys.argv[1:] if a.startswith('--langs=')), '')
+    for lang in arg.split(',') if arg else C.LANGS:
         shoot(page(lang), os.path.join(HUB, 'assets', f'og-{lang}.jpg'))
         print('og', lang, 'ok')
 

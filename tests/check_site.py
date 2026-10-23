@@ -43,12 +43,12 @@ def main():
         check(html == build.render(lang), f'{lang}: собранный файл устарел — запусти python build.py')
         check('@@' not in html, f'{lang}: остались @@')
         check(f'<link rel="canonical" href="{build.url(lang)}">' in html, f'{lang}: canonical')
-        for other in C.LANGS + ['x-default']:
+        for other in [C.HREFLANG[l] for l in C.LANGS] + ['x-default']:
             check(f'hreflang="{other}"' in html, f'{lang}: нет hreflang {other}')
         check(os.path.exists(os.path.join(ROOT, 'assets', f'og-{lang}.jpg')), f'{lang}: нет og-{lang}.jpg')
         refs |= wow_refs(html)
     ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-    check(len(ET.fromstring(read('sitemap.xml')).findall('s:url', ns)) == 3, 'sitemap: не 3 URL')
+    check(len(ET.fromstring(read('sitemap.xml')).findall('s:url', ns)) == len(C.LANGS), f'sitemap: не {len(C.LANGS)} URL')
     check(read('robots.txt').count('Sitemap:') == 2, 'robots: не 2 строки Sitemap')
     check(read('CNAME').strip() == 'gabella.site', 'CNAME')
     check(os.path.exists(os.path.join(ROOT, '.nojekyll')), '.nojekyll: нет файла — Pages включит Jekyll')

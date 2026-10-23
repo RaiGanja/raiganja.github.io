@@ -18,14 +18,14 @@ class HeadTest(unittest.TestCase):
     def test_lang_and_canonical(self):
         for lang in content.LANGS:
             html = build.render(lang)
-            self.assertIn(f'<html lang="{lang}"', html)
+            self.assertIn(f'<html lang="{content.HREFLANG[lang]}"', html)
             self.assertIn(f'<link rel="canonical" href="{build.url(lang)}">', html)
 
     def test_hreflang_full_set(self):
         for lang in content.LANGS:
             html = build.render(lang)
             for other in content.LANGS:
-                self.assertIn(f'<link rel="alternate" hreflang="{other}" href="{build.url(other)}">', html)
+                self.assertIn(f'<link rel="alternate" hreflang="{content.HREFLANG[other]}" href="{build.url(other)}">', html)
             self.assertIn(f'<link rel="alternate" hreflang="x-default" href="{content.SITE}/">', html)
 
     def test_title_and_og(self):
@@ -55,6 +55,30 @@ class HeadTest(unittest.TestCase):
         self.assertEqual(build.url('en'), 'https://gabella.site/en/')
         self.assertEqual(build.guide('uk'), '/wow/uk/')
         self.assertEqual(build.guide('ru'), '/wow/')
+        self.assertEqual(build.url('pt'), 'https://gabella.site/pt/')
+        self.assertEqual(build.OUT['pl'], 'pl/index.html')
+
+    def test_nine_languages_like_guide(self):
+        self.assertEqual(content.LANGS, ['ru', 'en', 'uk', 'de', 'fr', 'es', 'pt', 'it', 'pl'])
+        self.assertEqual(content.HREFLANG['pt'], 'pt-BR')
+        html = build.render('pt')
+        self.assertIn('<html lang="pt-BR"', html)
+        self.assertIn('<link rel="alternate" hreflang="pt-BR" href="https://gabella.site/pt/">', html)
+        self.assertIn('<meta property="og:locale" content="pt_BR">', html)
+
+    def test_every_language_fully_translated(self):
+        keys = set(content.T['ru'])
+        for lang in content.LANGS:
+            self.assertEqual(set(content.T[lang]), keys, lang)
+            self.assertTrue(all(v.strip() for v in content.T[lang].values()), lang)
+            self.assertIn(lang, content.AUTONYM)
+            self.assertIn(lang, content.HINT)
+            for s in content.GAMES[0]['sections']:
+                self.assertTrue(s['name'].get(lang), (lang, s['path']))
+            self.assertIn('%d', content.T[lang]['rel_left'])
+            self.assertIn('%h', content.T[lang]['rel_left'])
+        for lang in content.LANGS[1:]:
+            self.assertNotEqual(content.T[lang]['h1'], content.T['ru']['h1'], lang)
 
 
 class BodyTest(unittest.TestCase):
@@ -80,13 +104,22 @@ class BodyTest(unittest.TestCase):
 
     def test_lang_switch(self):
         html = build.render('uk')
-        self.assertIn('<a href="/" hreflang="ru" lang="ru">RU</a>', html)
-        self.assertIn('<a href="/uk/" hreflang="uk" lang="uk" aria-current="page">UK</a>', html)
+        self.assertIn('aria-label="Мова: Українська">UK</button><ul class="langlist" hidden>', html)
+        self.assertIn('<a href="/" data-lang="ru" hreflang="ru" lang="ru"><span>Русский</span><small>RU</small></a>', html)
+        self.assertIn('<a href="/uk/" data-lang="uk" hreflang="uk" lang="uk" aria-current="page"><span>Українська</span>', html)
+        self.assertIn('<a href="/pt/" data-lang="pt" hreflang="pt-BR" lang="pt-BR">Português (Brasil)</a>', html)
+        self.assertEqual(html.count('data-lang="pl"'), 2)
+
+    def test_lang_hint_shared_with_guide(self):
+        html = build.render('de')
+        self.assertIn("'gabella-lang-hint'", html)
+        self.assertIn('"pl": ["Ta strona jest dostępna po polsku"', html)
 
     def test_fonts_from_guide(self):
         html = build.render('ru')
         self.assertIn('url(/wow/assets/fonts/bona-nova-sc-cyrillic.woff2)', html)
         self.assertIn('url(/wow/assets/fonts/golos-text-latin.woff2)', html)
+        self.assertIn('url(/wow/assets/fonts/golos-text-latin-ext.woff2)', html)
 
     def test_disclaimer(self):
         for lang in content.LANGS:
@@ -127,9 +160,10 @@ class SeoTest(unittest.TestCase):
         root = ET.fromstring(build.sitemap())
         ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9', 'x': 'http://www.w3.org/1999/xhtml'}
         locs = [u.find('s:loc', ns).text for u in root.findall('s:url', ns)]
-        self.assertEqual(locs, ['https://gabella.site/', 'https://gabella.site/en/', 'https://gabella.site/uk/'])
+        self.assertEqual(locs, [build.url(l) for l in content.LANGS])
+        self.assertEqual(locs[3], 'https://gabella.site/de/')
         for u in root.findall('s:url', ns):
-            self.assertEqual(len(u.findall('x:link', ns)), 4)
+            self.assertEqual(len(u.findall('x:link', ns)), len(content.LANGS) + 1)
 
     def test_robots(self):
         r = build.robots()

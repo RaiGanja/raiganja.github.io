@@ -7,7 +7,7 @@ import sys
 import content as C
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-OUT = {'ru': 'index.html', 'en': 'en/index.html', 'uk': 'uk/index.html'}
+OUT = {l: f'{C.PREFIX[l]}index.html' for l in C.LANGS}
 CF_BEACON_TOKEN = ''
 
 
@@ -24,7 +24,7 @@ def esc(s):
 
 
 def hreflang():
-    links = [f'<link rel="alternate" hreflang="{l}" href="{url(l)}">' for l in C.LANGS]
+    links = [f'<link rel="alternate" hreflang="{C.HREFLANG[l]}" href="{url(l)}">' for l in C.LANGS]
     links.append(f'<link rel="alternate" hreflang="x-default" href="{C.SITE}/">')
     return '\n'.join(links)
 
@@ -54,9 +54,52 @@ JS = r'''
 })();
 '''
 
+# Выбор языка и подсказка по языку браузера — как в гиде; ключ localStorage общий, закрыл на хабе — не всплывёт и в гиде
+LANG_JS = r'''
+(() => {
+  const KEY = 'gabella-lang-hint', store = () => { try { localStorage.setItem(KEY, '1'); } catch (e) {} };
+  document.querySelectorAll('.langlist a, .langfoot a').forEach(a => a.addEventListener('click', store));
+  const sel = document.querySelector('.langsel'), btn = sel.querySelector('.langbtn'), list = sel.querySelector('.langlist');
+  const links = [...list.querySelectorAll('a')];
+  const shut = focus => { if (list.hidden) return; list.hidden = true; btn.setAttribute('aria-expanded', 'false'); if (focus) btn.focus(); };
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    list.hidden = !list.hidden; btn.setAttribute('aria-expanded', String(!list.hidden));
+    if (!list.hidden) (list.querySelector('[aria-current]') || links[0]).focus();
+  });
+  document.addEventListener('click', e => { if (!sel.contains(e.target)) shut(); });
+  sel.addEventListener('keydown', e => {
+    if (e.key === 'Escape') return shut(true);
+    const i = links.indexOf(document.activeElement);
+    if (i < 0 || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+    e.preventDefault();
+    const n = e.key === 'Home' ? 0 : e.key === 'End' ? links.length - 1 : (i + (e.key === 'ArrowDown' ? 1 : -1) + links.length) % links.length;
+    links[n].focus();
+  });
+  sel.addEventListener('focusout', e => { if (!sel.contains(e.relatedTarget)) shut(); });
+
+  let seen = '1';
+  try { seen = localStorage.getItem(KEY); } catch (e) {}
+  if (seen) return;
+  const H = @@HINT@@, cur = document.documentElement.lang.split('-')[0];
+  const want = (navigator.languages || [navigator.language]).map(x => String(x || '').toLowerCase().split('-')[0]).find(x => x in H);
+  const to = want && want !== cur && list.querySelector(`a[data-lang="${want}"]`);
+  if (!to) return;
+  const bar = document.createElement('div'), span = document.createElement('span'), a = document.createElement('a'), x = document.createElement('button');
+  bar.className = 'langhint'; bar.lang = to.lang; bar.setAttribute('role', 'status');
+  span.textContent = H[want][0];
+  a.href = to.getAttribute('href'); a.hreflang = to.hreflang; a.textContent = H[want][1]; a.addEventListener('click', store);
+  x.type = 'button'; x.setAttribute('aria-label', H[want][2]); x.textContent = '×';
+  x.addEventListener('click', () => { store(); bar.remove(); });
+  bar.append(span, a, x);
+  document.body.append(bar);
+})();
+'''
+
 
 def js():
-    return JS
+    hint = json.dumps({l: C.HINT[l] for l in C.LANGS}, ensure_ascii=False)
+    return JS + LANG_JS.replace('@@HINT@@', hint)
 
 
 ART = '/wow/assets/art/'
@@ -82,12 +125,24 @@ def hero_pic(art):
             f'<img src="{ART}{art}-1440.webp" alt="" width="1440" height="804" fetchpriority="high" decoding="async"></picture>')
 
 
+def lang_link(l, lang, inner):
+    cur = ' aria-current="page"' if l == lang else ''
+    hl = C.HREFLANG[l]
+    return f'<a href="/{C.PREFIX[l]}" data-lang="{l}" hreflang="{hl}" lang="{hl}"{cur}>{inner}</a>'
+
+
 def lang_switch(lang):
-    out = []
-    for l in C.LANGS:
-        cur = ' aria-current="page"' if l == lang else ''
-        out.append(f'<a href="/{C.PREFIX[l]}" hreflang="{l}" lang="{l}"{cur}>{l.upper()}</a>')
-    return f'<nav class="langs" aria-label="{esc(C.T[lang]["lang_nav"])}">' + ''.join(out) + '</nav>'
+    """Шапка: кнопка с кодом языка и выпадающий список самоназваний (как в гиде)."""
+    label = esc(C.T[lang]['lang_nav'])
+    items = ''.join(f'<li>{lang_link(l, lang, f"<span>{C.AUTONYM[l]}</span><small>{l.upper()}</small>")}</li>' for l in C.LANGS)
+    return (f'<div class="langsel"><button type="button" class="langbtn" aria-haspopup="true" aria-expanded="false" '
+            f'aria-label="{label}: {C.AUTONYM[lang]}">{lang.upper()}</button><ul class="langlist" hidden>{items}</ul></div>')
+
+
+def lang_foot(lang):
+    """Подвал: все языки строкой — видны без JS и поисковикам."""
+    links = ''.join(lang_link(l, lang, C.AUTONYM[l]) for l in C.LANGS)
+    return f'<nav class="langfoot" aria-label="{esc(C.T[lang]["lang_nav"])}">{links}</nav>'
 
 
 def tiles(lang):
@@ -126,7 +181,7 @@ def body(lang):
 </main>
 <footer class="foot wrap">
 <p>© Gabella · <a href="{guide(lang)}">{esc(t["guide_link"])}</a></p>
-{lang_switch(lang)}
+{lang_foot(lang)}
 <p class="tm">{esc(t["disclaimer"])}</p>
 </footer>'''
 
@@ -144,6 +199,7 @@ def font_faces():
             ('Bona Nova SC', '400 700', 'bona-nova-sc-latin-ext', LATX),
             ('Bona Nova SC', '400 700', 'bona-nova-sc-latin', LAT),
             ('Golos Text', '400 600', 'golos-text-cyrillic', CYR),
+            ('Golos Text', '400 600', 'golos-text-latin-ext', LATX),
             ('Golos Text', '400 600', 'golos-text-latin', LAT)]
     return '\n'.join(f'@font-face {{ font-family: "{f}"; font-style: normal; font-weight: {w}; font-display: swap; '
                      f'src: url({FONTS}{n}.woff2) format("woff2"); unicode-range: {r}; }}' for f, w, n, r in rows)
@@ -151,7 +207,7 @@ def font_faces():
 
 CSS = '''
 :root { --bg: #0a0b0d; --fg: #ece6d8; --muted: #a3a7ae; --gold: #c9a54a; --gold-2: #e0c27a; --gold-ink: #15110a;
-  --panel: rgba(15,18,26,.9); --pline: rgba(255,255,255,.08); --wrap: 1240px; --ease: cubic-bezier(.2,.7,.2,1);
+  --panel: rgba(15,18,26,.9); --panel-2: #12151d; --pline: rgba(255,255,255,.08); --wrap: 1240px; --ease: cubic-bezier(.2,.7,.2,1);
   --font-display: "Bona Nova SC", Georgia, "Times New Roman", serif; --font-body: "Golos Text", "Segoe UI", system-ui, sans-serif;
   color-scheme: dark; }
 * { box-sizing: border-box; }
@@ -165,10 +221,23 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
 .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 0; }
 .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 700 1.35rem/1 var(--font-display); letter-spacing: .04em; color: var(--gold); }
 .logo img { border-radius: 8px; }
-.langs { display: flex; gap: 4px; }
-.langs a { padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: .88rem; color: var(--muted); }
-.langs a:hover { color: var(--fg); }
-.langs a[aria-current] { color: var(--gold-ink); background: var(--gold); }
+.langsel { position: relative; }
+.langbtn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid color-mix(in srgb, currentColor 30%, transparent); border-radius: 8px; background: transparent; color: inherit; font: inherit; font-weight: 600; font-size: .8rem; letter-spacing: .04em; cursor: pointer; }
+.langbtn::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid; border-bottom: 1.5px solid; transform: translateY(-2px) rotate(45deg); opacity: .7; }
+.langbtn[aria-expanded="true"]::after { transform: translateY(2px) rotate(-135deg); }
+.langlist { position: absolute; right: 0; top: calc(100% + 8px); z-index: 60; min-width: 230px; margin: 0; padding: 6px; list-style: none; border: 1px solid var(--pline); border-radius: 10px; background: var(--panel-2); color: var(--fg); box-shadow: 0 18px 48px rgba(0,0,0,.35); }
+.langlist a { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 40px; padding: 0 12px; border-radius: 7px; color: inherit; text-decoration: none; font-size: .92rem; }
+.langlist a small { opacity: .55; font-size: .72rem; font-weight: 600; letter-spacing: .06em; }
+.langlist a:hover, .langlist a:focus-visible { background: color-mix(in srgb, var(--gold) 12%, transparent); }
+.langlist a[aria-current="page"] { color: var(--gold-2); font-weight: 600; }
+.langfoot { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.langfoot a { text-decoration: none; padding: 4px 0; }
+.langfoot a:hover { color: var(--fg); }
+.langfoot a[aria-current] { color: var(--gold-2); font-weight: 600; }
+.langhint { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 70; display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100% - 32px); padding: 6px 6px 6px 16px; border: 1px solid var(--pline); border-radius: 10px; background: var(--panel-2); color: var(--fg); box-shadow: 0 18px 48px rgba(0,0,0,.35); font-size: .9rem; }
+.langhint a { color: var(--gold-2); font-weight: 600; white-space: nowrap; }
+.langhint button { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border: 0; border-radius: 7px; background: transparent; color: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; }
+.langhint button:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
 .intro { padding: 28px 0 22px; display: grid; gap: 8px; }
 .intro h1 { font-size: clamp(2rem, 5vw, 3.4rem); }
 .intro p { margin: 0; color: var(--muted); font-size: 1.08rem; max-width: 60ch; }
@@ -234,7 +303,7 @@ def json_ld(lang):
     g = C.GAMES[0]
     data = {
         '@context': 'https://schema.org', '@type': 'WebSite', 'name': 'Gabella',
-        'url': url(lang), 'inLanguage': lang, 'description': C.T[lang]['desc'],
+        'url': url(lang), 'inLanguage': C.HREFLANG[lang], 'description': C.T[lang]['desc'],
         'hasPart': [{'@type': 'WebSite', 'name': g['name'][lang], 'url': C.SITE + guide(lang)}],
     }
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + '</script>'
@@ -248,7 +317,7 @@ def beacon():
 
 
 def sitemap():
-    alts = ''.join(f'<xhtml:link rel="alternate" hreflang="{l}" href="{url(l)}"/>' for l in C.LANGS)
+    alts = ''.join(f'<xhtml:link rel="alternate" hreflang="{C.HREFLANG[l]}" href="{url(l)}"/>' for l in C.LANGS)
     alts += f'<xhtml:link rel="alternate" hreflang="x-default" href="{C.SITE}/"/>'
     urls = ''.join(f'<url><loc>{url(l)}</loc>{alts}</url>\n' for l in C.LANGS)
     return ('<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -274,7 +343,7 @@ def render(lang):
         '@@LD@@': json_ld(lang),
         '@@HREFLANG@@': hreflang(),
         '@@OG_ALTLOC@@': alt_loc,
-        '@@LANG@@': lang,
+        '@@LANG@@': C.HREFLANG[lang],
         '@@TITLE@@': esc(t['title']),
         '@@DESC@@': esc(t['desc']),
         '@@URL@@': url(lang),
