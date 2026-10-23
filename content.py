@@ -1,0 +1,82 @@
+SITE = 'https://gabella.site'
+LANGS = ['ru', 'en', 'uk']
+PREFIX = {'ru': '', 'en': 'en/', 'uk': 'uk/'}
+LOCALE = {'ru': 'ru_RU', 'en': 'en_US', 'uk': 'uk_UA'}
+RELEASE = '2026-11-04T00:00:00'
+
+GAMES = [{
+    'id': 'wow',
+    'path': '/wow/',
+    'art': 'hero_dawn',
+    'name': {'ru': 'WoW Forever', 'en': 'WoW Forever', 'uk': 'WoW Forever'},
+    'sections': [
+        {'path': 'classes/', 'art': 'warrior', 'name': {'ru': 'Классы', 'en': 'Classes', 'uk': 'Класи'}},
+        {'path': 'races/', 'art': 'human', 'name': {'ru': 'Расы', 'en': 'Races', 'uk': 'Раси'}},
+        {'path': 'guides/leveling/', 'art': 'hunter', 'name': {'ru': 'Прокачка', 'en': 'Leveling', 'uk': 'Прокачування'}},
+        {'path': 'guides/dungeons/', 'art': 'warlock', 'name': {'ru': 'Подземелья и рейды', 'en': 'Dungeons & Raids', 'uk': 'Підземелля і рейди'}},
+        {'path': 'guides/professions/', 'art': 'hero_campfire', 'name': {'ru': 'Профессии', 'en': 'Professions', 'uk': 'Професії'}},
+        {'path': 'guides/faq/', 'art': 'mage', 'name': {'ru': 'FAQ', 'en': 'FAQ', 'uk': 'FAQ'}},
+        {'path': 'guides/news/', 'art': 'paladin', 'name': {'ru': 'Новости', 'en': 'News', 'uk': 'Новини'}},
+        {'path': 'tools/', 'art': 'priest', 'name': {'ru': 'Инструменты', 'en': 'Tools', 'uk': 'Інструменти'}},
+    ],
+}]
+
+T = {
+    'ru': {
+        'title': 'Gabella — гайды по играм: WoW Forever',
+        'desc': 'Гайды по WoW Forever: все классы и расы, прокачка, подземелья и рейды, профессии, FAQ, новости и инструменты для группы. На русском, английском и украинском.',
+        'h1': 'Гайды по играм',
+        'lead': 'Разборы классов и рас, маршруты прокачки, подземелья и инструменты для группы.',
+        'new': 'Новое',
+        'open': 'Открыть гид',
+        'rel_static': 'Релиз 04.11.2026',
+        'rel_left': 'Релиз через %d дн %h ч',
+        'rel_done': 'Вышла 04.11.2026',
+        'sections_h': 'Разделы гида',
+        'news_h': 'Свежие новости',
+        'news_all': 'Все новости',
+        'guide_link': 'Гид WoW Forever',
+        'disclaimer': 'World of Warcraft — торговая марка Blizzard Entertainment. Сайт неофициальный, с Blizzard не связан.',
+        'og_alt': 'Gabella — гайды по играм: WoW Forever',
+        'og_sub': 'Гайды по играм · WoW Forever',
+        'lang_nav': 'Язык',
+    },
+    'en': {
+        'title': 'Gabella — Game Guides: WoW Forever',
+        'desc': 'WoW Forever guides: every class and race, leveling, dungeons and raids, professions, FAQ, news and group tools. In English, Russian and Ukrainian.',
+        'h1': 'Game guides',
+        'lead': 'Class and race breakdowns, leveling routes, dungeons and tools for your group.',
+        'new': 'New',
+        'open': 'Open the guide',
+        'rel_static': 'Release 04.11.2026',
+        'rel_left': 'Release in %d d %h h',
+        'rel_done': 'Released 04.11.2026',
+        'sections_h': 'Guide sections',
+        'news_h': 'Latest news',
+        'news_all': 'All news',
+        'guide_link': 'WoW Forever guide',
+        'disclaimer': 'World of Warcraft is a trademark of Blizzard Entertainment. This is an unofficial site, not affiliated with Blizzard.',
+        'og_alt': 'Gabella — Game Guides: WoW Forever',
+        'og_sub': 'Game guides · WoW Forever',
+        'lang_nav': 'Language',
+    },
+    'uk': {
+        'title': 'Gabella — гайди з ігор: WoW Forever',
+        'desc': 'Гайди з WoW Forever: усі класи й раси, прокачування, підземелля і рейди, професії, FAQ, новини та інструменти для групи. Українською, англійською та російською.',
+        'h1': 'Гайди з ігор',
+        'lead': 'Розбори класів і рас, маршрути прокачування, підземелля та інструменти для групи.',
+        'new': 'Нове',
+        'open': 'Відкрити гід',
+        'rel_static': 'Реліз 04.11.2026',
+        'rel_left': 'Реліз через %d дн %h год',
+        'rel_done': 'Вийшла 04.11.2026',
+        'sections_h': 'Розділи гіда',
+        'news_h': 'Свіжі новини',
+        'news_all': 'Усі новини',
+        'guide_link': 'Гід WoW Forever',
+        'disclaimer': 'World of Warcraft — торгова марка Blizzard Entertainment. Сайт неофіційний, з Blizzard не пов’язаний.',
+        'og_alt': 'Gabella — гайди з ігор: WoW Forever',
+        'og_sub': 'Гайди з ігор · WoW Forever',
+        'lang_nav': 'Мова',
+    },
+}
