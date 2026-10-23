@@ -104,6 +104,12 @@ class JsTest(unittest.TestCase):
         self.assertIn("getElementById('cd')", html)
         self.assertNotIn('innerHTML', html)
 
+    def test_hidden_attribute_beats_grid_display(self):
+        html = build.render('en')
+        self.assertIn('[hidden] { display: none !important; }', html)
+        self.assertIn(r"/^\d{4}-\d{2}-\d{2}$/.test(n.date)", html)
+        self.assertIn("typeof n.title === 'string'", html)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -28,7 +28,7 @@ def hreflang():
     return '\n'.join(links)
 
 
-JS = '''
+JS = r'''
 (() => {
   const cd = document.getElementById('cd');
   const ms = new Date(cd.dataset.at) - new Date();
@@ -41,7 +41,7 @@ JS = '''
   fetch('/wow/assets/news.json').then(r => r.ok ? r.json() : []).then(list => {
     if (!Array.isArray(list) || !list.length) return;
     const ul = box.querySelector('ul');
-    list.filter(n => n && n.date && n.title && /^https:/.test(n.url))
+    list.filter(n => n && typeof n.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(n.date) && typeof n.title === 'string' && n.title && typeof n.url === 'string' && /^https:/.test(n.url))
       .sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5).forEach(n => {
         const li = document.createElement('li'), t = document.createElement('time'), a = document.createElement('a');
         t.dateTime = n.date; t.textContent = n.date.split('-').reverse().join('.');
@@ -155,6 +155,7 @@ CSS = '''
   --font-display: "Bona Nova SC", Georgia, "Times New Roman", serif; --font-body: "Golos Text", "Segoe UI", system-ui, sans-serif;
   color-scheme: dark; }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--font-body); -webkit-font-smoothing: antialiased; }
 a { color: inherit; }
