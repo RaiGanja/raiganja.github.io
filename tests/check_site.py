@@ -51,6 +51,7 @@ def main():
     check(len(ET.fromstring(read('sitemap.xml')).findall('s:url', ns)) == 3, 'sitemap: не 3 URL')
     check(read('robots.txt').count('Sitemap:') == 2, 'robots: не 2 строки Sitemap')
     check(read('CNAME').strip() == 'gabella.site', 'CNAME')
+    check(os.path.exists(os.path.join(ROOT, '.nojekyll')), '.nojekyll: нет файла — Pages включит Jekyll')
     if live:
         for ref in sorted(refs):
             code = None

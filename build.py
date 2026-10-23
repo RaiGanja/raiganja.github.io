@@ -217,6 +217,7 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
   .tile { scroll-snap-align: start; }
 }
 @media (max-width: 719px) {
+  .meta { flex-direction: column; align-items: flex-start; }
   .tiles { grid-auto-columns: 68%; }
   .hero { min-height: 440px; }
   .news li { grid-template-columns: none; gap: 2px; }
