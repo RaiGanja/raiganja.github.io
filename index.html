@@ -2,6 +2,20 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<script>
+(function () {
+  if (/bot|crawl|spider|slurp|lighthouse|headless|google-|preview/i.test(navigator.userAgent) || navigator.webdriver) return;
+  var P = {"ru": "/", "en": "/en/", "uk": "/uk/", "de": "/de/", "fr": "/fr/", "es": "/es/", "pt": "/pt/", "it": "/it/", "pl": "/pl/"}, A = { be: 'ru', kk: 'ru' }, w = null, r = document.referrer;
+  try { w = localStorage.getItem('gabella-lang'); } catch (e) {}
+  if (!(w in P)) {
+    if (r && (r.indexOf(location.origin + '/') === 0 || /^https?:\/\/([^\/]*\.)?(google|bing|yandex|ya|duckduckgo|yahoo|baidu|ecosia|naver|qwant|seznam)\.[^\/]+\//.test(r))) return;
+    var L = navigator.languages || [navigator.language];
+    for (var i = 0; i < L.length && !w; i++) { var b = String(L[i] || '').toLowerCase().split('-')[0]; b = A[b] || b; if (b in P) w = b; }
+    w = w || 'en';
+  }
+  if (w !== 'ru') location.replace(P[w] + location.search + location.hash);
+})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Gabella — гайды по играм: WoW Forever</title>
 <meta name="description" content="Гайды по WoW Forever: все классы и расы, прокачка, подземелья и рейды, профессии, FAQ, новости и инструменты для группы. На 9 языках.">
@@ -190,8 +204,8 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
 })();
 
 (() => {
-  const KEY = 'gabella-lang-hint', store = () => { try { localStorage.setItem(KEY, '1'); } catch (e) {} };
-  document.querySelectorAll('.langlist a, .langfoot a').forEach(a => a.addEventListener('click', store));
+  const KEY = 'gabella-lang-hint', store = l => { try { localStorage.setItem(KEY, '1'); if (l) localStorage.setItem('gabella-lang', l); } catch (e) {} };
+  document.querySelectorAll('.langlist a, .langfoot a').forEach(a => a.addEventListener('click', () => store(a.dataset.lang)));
   const sel = document.querySelector('.langsel'), btn = sel.querySelector('.langbtn'), list = sel.querySelector('.langlist');
   const links = [...list.querySelectorAll('a')];
   const shut = focus => { if (list.hidden) return; list.hidden = true; btn.setAttribute('aria-expanded', 'false'); if (focus) btn.focus(); };
@@ -221,7 +235,7 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
   const bar = document.createElement('div'), span = document.createElement('span'), a = document.createElement('a'), x = document.createElement('button');
   bar.className = 'langhint'; bar.lang = to.lang; bar.setAttribute('role', 'status');
   span.textContent = H[want][0];
-  a.href = to.getAttribute('href'); a.hreflang = to.hreflang; a.textContent = H[want][1]; a.addEventListener('click', store);
+  a.href = to.getAttribute('href'); a.hreflang = to.hreflang; a.textContent = H[want][1]; a.addEventListener('click', () => store(want));
   x.type = 'button'; x.setAttribute('aria-label', H[want][2]); x.textContent = '×';
   x.addEventListener('click', () => { store(); bar.remove(); });
   bar.append(span, a, x);

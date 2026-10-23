@@ -190,8 +190,8 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
 })();
 
 (() => {
-  const KEY = 'gabella-lang-hint', store = () => { try { localStorage.setItem(KEY, '1'); } catch (e) {} };
-  document.querySelectorAll('.langlist a, .langfoot a').forEach(a => a.addEventListener('click', store));
+  const KEY = 'gabella-lang-hint', store = l => { try { localStorage.setItem(KEY, '1'); if (l) localStorage.setItem('gabella-lang', l); } catch (e) {} };
+  document.querySelectorAll('.langlist a, .langfoot a').forEach(a => a.addEventListener('click', () => store(a.dataset.lang)));
   const sel = document.querySelector('.langsel'), btn = sel.querySelector('.langbtn'), list = sel.querySelector('.langlist');
   const links = [...list.querySelectorAll('a')];
   const shut = focus => { if (list.hidden) return; list.hidden = true; btn.setAttribute('aria-expanded', 'false'); if (focus) btn.focus(); };
@@ -221,7 +221,7 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
   const bar = document.createElement('div'), span = document.createElement('span'), a = document.createElement('a'), x = document.createElement('button');
   bar.className = 'langhint'; bar.lang = to.lang; bar.setAttribute('role', 'status');
   span.textContent = H[want][0];
-  a.href = to.getAttribute('href'); a.hreflang = to.hreflang; a.textContent = H[want][1]; a.addEventListener('click', store);
+  a.href = to.getAttribute('href'); a.hreflang = to.hreflang; a.textContent = H[want][1]; a.addEventListener('click', () => store(want));
   x.type = 'button'; x.setAttribute('aria-label', H[want][2]); x.textContent = '×';
   x.addEventListener('click', () => { store(); bar.remove(); });
   bar.append(span, a, x);

@@ -57,8 +57,8 @@ JS = r'''
 # Выбор языка и подсказка по языку браузера — как в гиде; ключ localStorage общий, закрыл на хабе — не всплывёт и в гиде
 LANG_JS = r'''
 (() => {
-  const KEY = 'gabella-lang-hint', store = () => { try { localStorage.setItem(KEY, '1'); } catch (e) {} };
-  document.querySelectorAll('.langlist a, .langfoot a').forEach(a => a.addEventListener('click', store));
+  const KEY = 'gabella-lang-hint', store = l => { try { localStorage.setItem(KEY, '1'); if (l) localStorage.setItem('gabella-lang', l); } catch (e) {} };
+  document.querySelectorAll('.langlist a, .langfoot a').forEach(a => a.addEventListener('click', () => store(a.dataset.lang)));
   const sel = document.querySelector('.langsel'), btn = sel.querySelector('.langbtn'), list = sel.querySelector('.langlist');
   const links = [...list.querySelectorAll('a')];
   const shut = focus => { if (list.hidden) return; list.hidden = true; btn.setAttribute('aria-expanded', 'false'); if (focus) btn.focus(); };
@@ -88,13 +88,36 @@ LANG_JS = r'''
   const bar = document.createElement('div'), span = document.createElement('span'), a = document.createElement('a'), x = document.createElement('button');
   bar.className = 'langhint'; bar.lang = to.lang; bar.setAttribute('role', 'status');
   span.textContent = H[want][0];
-  a.href = to.getAttribute('href'); a.hreflang = to.hreflang; a.textContent = H[want][1]; a.addEventListener('click', store);
+  a.href = to.getAttribute('href'); a.hreflang = to.hreflang; a.textContent = H[want][1]; a.addEventListener('click', () => store(want));
   x.type = 'button'; x.setAttribute('aria-label', H[want][2]); x.textContent = '×';
   x.addEventListener('click', () => { store(); bar.remove(); });
   bar.append(span, a, x);
   document.body.append(bar);
 })();
 '''
+
+# Корень / (русский): язык посетителя до отрисовки — как в гиде (build.py гида, AUTO_JS). Сохранённый выбор gabella-lang
+# (меню языков здесь и в гиде) главнее; иначе языки браузера, остальным английский. Боты, переходы из поиска
+# и со своего сайта остаются на русской странице — поисковики индексируют её как есть.
+AUTO_JS = r'''<script>
+(function () {
+  if (/bot|crawl|spider|slurp|lighthouse|headless|google-|preview/i.test(navigator.userAgent) || navigator.webdriver) return;
+  var P = @@PATHS@@, A = { be: 'ru', kk: 'ru' }, w = null, r = document.referrer;
+  try { w = localStorage.getItem('gabella-lang'); } catch (e) {}
+  if (!(w in P)) {
+    if (r && (r.indexOf(location.origin + '/') === 0 || /^https?:\/\/([^\/]*\.)?(google|bing|yandex|ya|duckduckgo|yahoo|baidu|ecosia|naver|qwant|seznam)\.[^\/]+\//.test(r))) return;
+    var L = navigator.languages || [navigator.language];
+    for (var i = 0; i < L.length && !w; i++) { var b = String(L[i] || '').toLowerCase().split('-')[0]; b = A[b] || b; if (b in P) w = b; }
+    w = w || 'en';
+  }
+  if (w !== 'ru') location.replace(P[w] + location.search + location.hash);
+})();
+</script>
+'''
+
+
+def auto_lang():
+    return AUTO_JS.replace('@@PATHS@@', json.dumps({l: '/' + C.PREFIX[l] for l in C.LANGS}))
 
 
 def js():
@@ -354,6 +377,8 @@ def render(lang):
     for k, v in subs.items():
         page = page.replace(k, v)
     page = page.replace('</body>', beacon() + '</body>', 1)
+    if lang == 'ru':
+        page = page.replace('<meta name="viewport"', auto_lang() + '<meta name="viewport"', 1)
     if '@@' in page:
         sys.exit(f'build.py: в странице {lang} остались плейсхолдеры @@')
     return page

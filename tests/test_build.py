@@ -21,6 +21,15 @@ class HeadTest(unittest.TestCase):
             self.assertIn(f'<html lang="{content.HREFLANG[lang]}"', html)
             self.assertIn(f'<link rel="canonical" href="{build.url(lang)}">', html)
 
+    def test_auto_lang_only_on_root(self):
+        """Переход на язык браузера — только с русского корня /, до отрисовки, на все языки хаба."""
+        ru = build.render('ru')
+        self.assertLess(ru.index("localStorage.getItem('gabella-lang')"), ru.index('<title>'))
+        for lang in content.LANGS:
+            self.assertIn(f'"{lang}": "/{content.PREFIX[lang]}"', ru)
+            if lang != 'ru':
+                self.assertNotIn("getItem('gabella-lang')", build.render(lang), lang)
+
     def test_hreflang_full_set(self):
         for lang in content.LANGS:
             html = build.render(lang)
