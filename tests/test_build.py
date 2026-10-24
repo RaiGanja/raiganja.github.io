@@ -190,7 +190,7 @@ class SeoTest(unittest.TestCase):
         self.assertEqual(data['url'], 'https://gabella.site/en/')
         self.assertEqual(data['inLanguage'], 'en')
         self.assertEqual(data['hasPart'][0]['url'], 'https://gabella.site/wow/en/')
-        self.assertEqual(data['publisher']['sameAs'], ['https://discord.gg/ZGpznkX3Zw'])
+        self.assertEqual(data['publisher']['sameAs'], ['https://discord.gg/ZGpznkX3Zw', 'https://t.me/gabella_wow'])
 
     def test_sitemap(self):
         root = ET.fromstring(build.sitemap())
