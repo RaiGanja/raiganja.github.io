@@ -7,6 +7,7 @@ import re
 import sys
 
 import content as C
+from guide_path import guide_dir
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = {l: f'{C.PREFIX[l]}index.html' for l in C.LANGS}
@@ -141,19 +142,7 @@ ART = '/wow/assets/art/'
 HEROES = {'hero_dawn', 'hero_campfire'}
 
 
-def guide_art_dir():
-    """assets/art гида: соседняя папка wow (из worktree хаба — выше по дереву)."""
-    d = ROOT
-    while True:
-        p = os.path.join(d, 'wow', 'assets', 'art')
-        if os.path.isdir(p):
-            return p
-        if os.path.dirname(d) == d:
-            sys.exit('не найден ../wow/assets/art: арт хаба берётся из гида')
-        d = os.path.dirname(d)
-
-
-GUIDE_ART = guide_art_dir()
+GUIDE_ART = os.path.join(guide_dir(), 'assets', 'art')
 
 
 def art(name):

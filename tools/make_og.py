@@ -9,8 +9,9 @@ from PIL import Image
 HUB = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, HUB)
 import content as C  # noqa: E402
+from guide_path import guide_dir  # noqa: E402
 
-GUIDE = os.path.join(os.path.dirname(HUB), 'wow', 'assets')
+GUIDE = os.path.join(guide_dir(), 'assets')
 CHROME = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
 
 

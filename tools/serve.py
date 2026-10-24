@@ -2,9 +2,13 @@
 import functools
 import http.server
 import os
+import sys
 
 HUB = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-GUIDE = os.path.join(os.path.dirname(HUB), 'wow')
+sys.path.insert(0, HUB)
+from guide_path import guide_dir  # noqa: E402
+
+GUIDE = guide_dir()
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
