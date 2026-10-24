@@ -1,5 +1,5 @@
 SITE = 'https://gabella.site'
-# Те же 9 языков, что у гида (wfpages/langs.py): ru — корень, остальные — /<lang>/; pt — бразильский
+# Те же 9 языков, что у гида (wow/langs.py): ru — корень, остальные — /<lang>/; pt — бразильский
 LANGS = ['ru', 'en', 'uk', 'de', 'fr', 'es', 'pt', 'it', 'pl']
 PREFIX = {l: '' if l == 'ru' else f'{l}/' for l in LANGS}
 HREFLANG = {l: l for l in LANGS} | {'pt': 'pt-BR'}
@@ -7,8 +7,8 @@ LOCALE = {'ru': 'ru_RU', 'en': 'en_US', 'uk': 'uk_UA', 'de': 'de_DE', 'fr': 'fr_
 AUTONYM = {'ru': 'Русский', 'en': 'English', 'uk': 'Українська', 'de': 'Deutsch', 'fr': 'Français', 'es': 'Español',
            'pt': 'Português (Brasil)', 'it': 'Italiano', 'pl': 'Polski'}
 RELEASE = '2026-11-04T00:00:00'
-DISCORD = 'https://discord.gg/ZGpznkX3Zw'   # постоянное приглашение на сервер Gabella · WoW Forever (то же в wfpages/build.py)
-TELEGRAM = 'https://t.me/gabella_wow'   # публичный канал новостей (то же в wfpages/build.py)
+DISCORD = 'https://discord.gg/ZGpznkX3Zw'   # постоянное приглашение на сервер Gabella · WoW Forever (то же в wow/build.py)
+TELEGRAM = 'https://t.me/gabella_wow'   # публичный канал новостей (то же в wow/build.py)
 
 # Подсказка по языку браузера (как в гиде): текст, ссылка, кнопка закрытия — на языке посетителя
 HINT = {
@@ -28,7 +28,7 @@ def _all(name):
     return {l: name for l in LANGS}
 
 
-# Названия разделов — как в меню гида (wfpages/i18n/<lang>.json)
+# Названия разделов — как в меню гида (wow/i18n/<lang>.json)
 GAMES = [{
     'id': 'wow',
     'path': '/wow/',

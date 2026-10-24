@@ -10,7 +10,7 @@ HUB = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, HUB)
 import content as C  # noqa: E402
 
-GUIDE = os.path.join(os.path.dirname(HUB), 'wfpages', 'assets')
+GUIDE = os.path.join(os.path.dirname(HUB), 'wow', 'assets')
 CHROME = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
 
 

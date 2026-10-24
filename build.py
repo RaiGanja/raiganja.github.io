@@ -10,15 +10,15 @@ import content as C
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = {l: f'{C.PREFIX[l]}index.html' for l in C.LANGS}
 OUT_404 = {l: f'{C.PREFIX[l]}404.html' for l in C.LANGS}
-CF_BEACON_TOKEN = 'ee1d216e690040389063e8d72384c2c7'   # Cloudflare Web Analytics сайта gabella.site — тот же, что в гиде (wfpages/seo.py)
+CF_BEACON_TOKEN = 'ee1d216e690040389063e8d72384c2c7'   # Cloudflare Web Analytics сайта gabella.site — тот же, что в гиде (wow/seo.py)
 
 # Подтверждение прав в поисковиках (Яндекс не используем — решение 23.10): значение content= из метатега кабинета; пусто — метатег не вставляется.
-# Те же значения — в гиде (wfpages/seo.py VERIFY). Bing подключён импортом из Search Console, msvalidate.01 — запасной путь.
+# Те же значения — в гиде (wow/seo.py VERIFY). Bing подключён импортом из Search Console, msvalidate.01 — запасной путь.
 VERIFY = {
     'msvalidate.01': '',         # Bing Webmaster Tools → Settings → Verification → HTML Meta Tag
 }
 # IndexNow: ключ публичный по замыслу протокола; файл <ключ>.txt в корне домена подтверждает его для всего gabella.site.
-# Отправка — tools/indexnow.py (.github/workflows/indexnow.yml), тот же ключ в гиде wfpages/tools/indexnow.py.
+# Отправка — tools/indexnow.py (.github/workflows/indexnow.yml), тот же ключ в гиде wow/tools/indexnow.py.
 INDEXNOW_KEY = '99c3c672b2e834d250d8c7b1dc0c34b9'
 
 

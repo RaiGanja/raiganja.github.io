@@ -1,10 +1,10 @@
-"""Превью хаба: python tools/serve.py -> http://127.0.0.1:8766/ (/wow/ отдаётся из ../wfpages)"""
+"""Превью хаба: python tools/serve.py -> http://127.0.0.1:8766/ (/wow/ отдаётся из ../wow)"""
 import functools
 import http.server
 import os
 
 HUB = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-GUIDE = os.path.join(os.path.dirname(HUB), 'wfpages')
+GUIDE = os.path.join(os.path.dirname(HUB), 'wow')
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
