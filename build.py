@@ -1,4 +1,5 @@
 """Сборка хаба gabella.site: python build.py"""
+import hashlib
 import html as H
 import json
 import os
@@ -140,23 +141,47 @@ ART = '/wow/assets/art/'
 HEROES = {'hero_dawn', 'hero_campfire'}
 
 
-def pic(art, alt='', lazy=True):
+def guide_art_dir():
+    """assets/art гида: соседняя папка wow (из worktree хаба — выше по дереву)."""
+    d = ROOT
+    while True:
+        p = os.path.join(d, 'wow', 'assets', 'art')
+        if os.path.isdir(p):
+            return p
+        if os.path.dirname(d) == d:
+            sys.exit('не найден ../wow/assets/art: арт хаба берётся из гида')
+        d = os.path.dirname(d)
+
+
+GUIDE_ART = guide_art_dir()
+
+
+def art(name):
+    """Адрес арта гида с ?v=<хэш файла>: перерисованная сцена не залипает в кэше на 7 дней (так же, как в гиде)."""
+    with open(os.path.join(GUIDE_ART, name), 'rb') as f:
+        return f'{ART}{name}?v={hashlib.sha1(f.read()).hexdigest()[:8]}'
+
+
+def pic(name, alt='', lazy=True):
     """Плитка: портрет 360 или шапка 960 из гида."""
-    w, h = (960, 536) if art in HEROES else (360, 482)
+    w, h = (960, 536) if name in HEROES else (360, 482)
     load = ' loading="lazy"' if lazy else ''
-    return (f'<picture><source type="image/avif" srcset="{ART}{art}-{w}.avif">'
-            f'<img src="{ART}{art}-{w}.webp" alt="{esc(alt)}" width="{w}" height="{h}"{load} decoding="async"></picture>')
+    return (f'<picture><source type="image/avif" srcset="{art(f"{name}-{w}.avif")}">'
+            f'<img src="{art(f"{name}-{w}.webp")}" alt="{esc(alt)}" width="{w}" height="{h}"{load} decoding="async"></picture>')
 
 
-def hero_pic(art):
-    m = f'{ART}{art}-m-600.%s 600w, {ART}{art}-m-1000.%s 1000w'
-    d = f'{ART}{art}-960.%s 960w, {ART}{art}-1440.%s 1440w, {ART}{art}-1920.%s 1920w'
+def hero_pic(name):
+    def m(ext):
+        return f'{art(f"{name}-m-600.{ext}")} 600w, {art(f"{name}-m-1000.{ext}")} 1000w'
+
+    def d(ext):
+        return f'{art(f"{name}-960.{ext}")} 960w, {art(f"{name}-1440.{ext}")} 1440w, {art(f"{name}-1920.{ext}")} 1920w'
     return ('<picture class="hero-art">'
-            f'<source media="(max-width: 719px)" type="image/avif" srcset="{m % ("avif", "avif")}" sizes="100vw">'
-            f'<source media="(max-width: 719px)" type="image/webp" srcset="{m % ("webp", "webp")}" sizes="100vw">'
-            f'<source type="image/avif" srcset="{d % ("avif", "avif", "avif")}" sizes="(min-width: 1272px) 1240px, 100vw">'
-            f'<source type="image/webp" srcset="{d % ("webp", "webp", "webp")}" sizes="(min-width: 1272px) 1240px, 100vw">'
-            f'<img src="{ART}{art}-1440.webp" alt="" width="1440" height="804" fetchpriority="high" decoding="async"></picture>')
+            f'<source media="(max-width: 719px)" type="image/avif" srcset="{m("avif")}" sizes="100vw">'
+            f'<source media="(max-width: 719px)" type="image/webp" srcset="{m("webp")}" sizes="100vw">'
+            f'<source type="image/avif" srcset="{d("avif")}" sizes="(min-width: 1272px) 1240px, 100vw">'
+            f'<source type="image/webp" srcset="{d("webp")}" sizes="(min-width: 1272px) 1240px, 100vw">'
+            f'<img src="{art(f"{name}-1440.webp")}" alt="" width="1440" height="804" fetchpriority="high" decoding="async"></picture>')
 
 
 def lang_link(l, lang, inner):
