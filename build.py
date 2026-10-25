@@ -139,7 +139,6 @@ def js():
 
 
 ART = '/wow/assets/art/'
-HEROES = {'hero_dawn', 'hero_campfire'}
 
 
 GUIDE_ART = os.path.join(guide_dir(), 'assets', 'art')
@@ -152,8 +151,8 @@ def art(name):
 
 
 def pic(name, alt='', lazy=True):
-    """Плитка: портрет 360 или шапка 960 из гида."""
-    w, h = (960, 536) if name in HEROES else (360, 482)
+    """Плитка: сцена раздела из гида (шапка 960) или портрет 360."""
+    w, h = (960, 536) if name.startswith('hero_') else (360, 482)
     load = ' loading="lazy"' if lazy else ''
     return (f'<picture><source type="image/avif" srcset="{art(f"{name}-{w}.avif")}">'
             f'<img src="{art(f"{name}-{w}.webp")}" alt="{esc(alt)}" width="{w}" height="{h}"{load} decoding="async"></picture>')

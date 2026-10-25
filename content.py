@@ -6,7 +6,7 @@ HREFLANG = {l: l for l in LANGS} | {'pt': 'pt-BR'}
 LOCALE = {'ru': 'ru_RU', 'en': 'en_US', 'uk': 'uk_UA', 'de': 'de_DE', 'fr': 'fr_FR', 'es': 'es_ES', 'pt': 'pt_BR', 'it': 'it_IT', 'pl': 'pl_PL'}
 AUTONYM = {'ru': 'Русский', 'en': 'English', 'uk': 'Українська', 'de': 'Deutsch', 'fr': 'Français', 'es': 'Español',
            'pt': 'Português (Brasil)', 'it': 'Italiano', 'pl': 'Polski'}
-RELEASE = '2026-11-04T00:00:00'
+RELEASE = '2026-11-04T23:00:00Z'   # как в гиде (wow/index.src.html): 23:00 UTC, у каждого посетителя своё местное время
 DISCORD = 'https://discord.gg/ZGpznkX3Zw'   # постоянное приглашение на сервер Gabella · WoW Forever (то же в wow/build.py)
 TELEGRAM = 'https://t.me/gabella_wow'   # публичный канал новостей (то же в wow/build.py)
 
@@ -35,27 +35,27 @@ GAMES = [{
     'art': 'hero_dawn',
     'name': _all('WoW Forever'),
     'sections': [
-        {'path': 'classes/', 'art': 'warrior', 'name': {
+        {'path': 'classes/', 'art': 'hero_classes', 'name': {
             'ru': 'Классы', 'en': 'Classes', 'uk': 'Класи', 'de': 'Klassen', 'fr': 'Classes', 'es': 'Clases',
             'pt': 'Classes', 'it': 'Classi', 'pl': 'Klasy'}},
-        {'path': 'races/', 'art': 'human', 'name': {
+        {'path': 'races/', 'art': 'hero_races', 'name': {
             'ru': 'Расы', 'en': 'Races', 'uk': 'Раси', 'de': 'Völker', 'fr': 'Races', 'es': 'Razas',
             'pt': 'Raças', 'it': 'Razze', 'pl': 'Rasy'}},
-        {'path': 'guides/leveling/', 'art': 'hunter', 'name': {
+        {'path': 'guides/leveling/', 'art': 'hero_leveling', 'name': {
             'ru': 'Прокачка', 'en': 'Leveling', 'uk': 'Прокачування', 'de': 'Leveln', 'fr': 'Progression',
             'es': 'Subida de nivel', 'pt': 'Evolução', 'it': 'Livellamento', 'pl': 'Levelowanie'}},
-        {'path': 'guides/dungeons/', 'art': 'warlock', 'name': {
+        {'path': 'guides/dungeons/', 'art': 'hero_dungeons', 'name': {
             'ru': 'Подземелья и рейды', 'en': 'Dungeons & Raids', 'uk': 'Підземелля і рейди', 'de': 'Dungeons und Raids',
             'fr': 'Donjons et raids', 'es': 'Mazmorras y bandas', 'pt': 'Masmorras e raides',
             'it': 'Spedizioni e incursioni', 'pl': 'Dungeony i raidy'}},
-        {'path': 'guides/professions/', 'art': 'hero_campfire', 'name': {
+        {'path': 'guides/professions/', 'art': 'hero_professions', 'name': {
             'ru': 'Профессии', 'en': 'Professions', 'uk': 'Професії', 'de': 'Berufe', 'fr': 'Métiers',
             'es': 'Profesiones', 'pt': 'Profissões', 'it': 'Professioni', 'pl': 'Profesje'}},
-        {'path': 'guides/faq/', 'art': 'mage', 'name': _all('FAQ')},
-        {'path': 'guides/news/', 'art': 'paladin', 'name': {
+        {'path': 'guides/faq/', 'art': 'hero_faq', 'name': _all('FAQ')},
+        {'path': 'guides/news/', 'art': 'hero_news', 'name': {
             'ru': 'Новости', 'en': 'News', 'uk': 'Новини', 'de': 'News', 'fr': 'Actualités', 'es': 'Noticias',
             'pt': 'Notícias', 'it': 'Notizie', 'pl': 'Newsy'}},
-        {'path': 'tools/', 'art': 'priest', 'name': {
+        {'path': 'tools/', 'art': 'hero_tools', 'name': {
             'ru': 'Инструменты', 'en': 'Tools', 'uk': 'Інструменти', 'de': 'Tools', 'fr': 'Outils',
             'es': 'Herramientas', 'pt': 'Ferramentas', 'it': 'Strumenti', 'pl': 'Narzędzia'}},
     ],
