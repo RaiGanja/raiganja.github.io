@@ -264,7 +264,7 @@ CSS = '''
   --panel: rgba(8,8,8,.94); --panel-2: #141414; --pline: rgba(255,255,255,.08); --wrap: 1240px; --ease: cubic-bezier(.2,.7,.2,1);
   --font-display: "Spectral SC", Georgia, "Times New Roman", serif; --font-body: "Golos Text", "Segoe UI", system-ui, sans-serif;
   color-scheme: dark; }
-/* Светлая тема — выбор посетителя в гиде (localStorage wf-theme = light), палитра как у светлой темы гида. Без выбора — тёмная.
+/* Светлая тема — как в гиде: localStorage wf-theme, без выбора — системная (prefers-color-scheme). Палитра как у светлой темы гида.
    Арт и текст на нём остаются ночными, как в гиде. */
 :root[data-theme="light"] { --bg: #f3f2ee; --fg: #17161a; --muted: #595650; --gold: #7d5c12; --gold-2: #7d5c12; --gold-ink: #ffffff;
   --panel: rgba(255,255,255,.95); --panel-2: #f6f4ef; --pline: #e2ddd2; color-scheme: light; }

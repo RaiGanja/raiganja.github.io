@@ -178,6 +178,8 @@ class JsTest(unittest.TestCase):
         for lang in content.LANGS:
             html = build.render(lang)
             self.assertIn("localStorage.getItem('wf-theme')", html)
+            self.assertIn("matchMedia('(prefers-color-scheme: light)')", html)
+            self.assertIn("t==='light'?'#fbfaf7':'#050505'", html)
             self.assertIn(':root[data-theme="light"] {', html)
             self.assertLess(html.index("getItem('wf-theme')"), html.index('<style>'))
 

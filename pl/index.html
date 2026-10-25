@@ -17,7 +17,7 @@
 <link rel="alternate" hreflang="pl" href="https://gabella.site/pl/">
 <link rel="alternate" hreflang="x-default" href="https://gabella.site/">
 <meta name="theme-color" content="#050505">
-<script>(function(){var t=null;try{t=localStorage.getItem('wf-theme')}catch(e){}if(t==='light'){document.documentElement.setAttribute('data-theme','light');document.querySelector('meta[name="theme-color"]').setAttribute('content','#fbfaf7')}})();</script>
+<script>(function(){var t=null;try{t=localStorage.getItem('wf-theme')}catch(e){}if(t!=='light'&&t!=='dark'){t=window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}document.documentElement.setAttribute('data-theme',t);document.querySelector('meta[name="theme-color"]').setAttribute('content',t==='light'?'#fbfaf7':'#050505')})();</script>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="96x96" href="/wow/assets/icons/favicon-96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/wow/assets/icons/icon-192.png">
@@ -52,7 +52,7 @@
   --panel: rgba(8,8,8,.94); --panel-2: #141414; --pline: rgba(255,255,255,.08); --wrap: 1240px; --ease: cubic-bezier(.2,.7,.2,1);
   --font-display: "Spectral SC", Georgia, "Times New Roman", serif; --font-body: "Golos Text", "Segoe UI", system-ui, sans-serif;
   color-scheme: dark; }
-/* Светлая тема — выбор посетителя в гиде (localStorage wf-theme = light), палитра как у светлой темы гида. Без выбора — тёмная.
+/* Светлая тема — как в гиде: localStorage wf-theme, без выбора — системная (prefers-color-scheme). Палитра как у светлой темы гида.
    Арт и текст на нём остаются ночными, как в гиде. */
 :root[data-theme="light"] { --bg: #f3f2ee; --fg: #17161a; --muted: #595650; --gold: #7d5c12; --gold-2: #7d5c12; --gold-ink: #ffffff;
   --panel: rgba(255,255,255,.95); --panel-2: #f6f4ef; --pline: #e2ddd2; color-scheme: light; }
