@@ -389,6 +389,26 @@ def robots():
     return f'User-agent: *\nAllow: /\n\nSitemap: {C.SITE}/sitemap.xml\nSitemap: {C.SITE}/wow/sitemap.xml\n'
 
 
+# Файлы под /assets/ и /wow/assets/ Cloudflare держит 30 дней, браузер 7: адрес без ?v= у посетителей остаётся старым.
+# Последний проход по готовой странице (в том числе картинки в JS и JSON-LD): ?v=<sha1 файла, 8 знаков> — как в гиде
+# (build.py гида: font_version, brand_version), поэтому шрифт и иконка в хабе и в гиде имеют один адрес и один кэш.
+ASSET = re.compile(r'((?:https://gabella\.site)?)(/(?:wow/)?assets/[\w./-]+\.(?:png|jpe?g|webp|avif|woff2|ico|svg)|/favicon\.ico)(?![\w.]|\?v=)')
+
+
+def asset_file(path):
+    return os.path.join(guide_dir() if path.startswith('/wow/') else ROOT, path[len('/wow/'):] if path.startswith('/wow/') else path.lstrip('/'))
+
+
+def versioned(page):
+    def tag(m):
+        f = asset_file(m[2])
+        if not os.path.isfile(f):
+            sys.exit(f'build.py: нет файла {m[2]} ({f})')
+        with open(f, 'rb') as fh:
+            return f'{m[1]}{m[2]}?v={hashlib.sha1(fh.read()).hexdigest()[:8]}'
+    return ASSET.sub(tag, page)
+
+
 def render(lang, nf=False):
     if len(C.GAMES) != 1:
         sys.exit('build.py: в GAMES больше одной игры — сначала нужна сетка игр (спека, «Следующая игра»)')
@@ -420,7 +440,7 @@ def render(lang, nf=False):
         page = page.replace('<meta name="viewport"', auto_lang() + '<meta name="viewport"', 1)
     if '@@' in page:
         sys.exit(f'build.py: в странице {lang} остались плейсхолдеры @@')
-    return page
+    return versioned(page)
 
 
 NF_JS = r'''<script>

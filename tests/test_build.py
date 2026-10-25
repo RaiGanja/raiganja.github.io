@@ -41,7 +41,7 @@ class HeadTest(unittest.TestCase):
         for lang in content.LANGS:
             html = build.render(lang)
             self.assertIn(f'<title>{content.T[lang]["title"]}</title>', html)
-            self.assertIn(f'<meta property="og:image" content="{content.SITE}/assets/og-{lang}.jpg">', html)
+            self.assertRegex(html, rf'<meta property="og:image" content="{re.escape(content.SITE)}/assets/og-{lang}\.jpg\?v=\w{{8}}">')
             self.assertIn(f'<meta property="og:locale" content="{content.LOCALE[lang]}">', html)
 
     def test_no_refresh_and_no_sw(self):
@@ -152,9 +152,19 @@ class BodyTest(unittest.TestCase):
 
     def test_fonts_from_guide(self):
         html = build.render('ru')
-        self.assertIn('url(/wow/assets/fonts/spectral-sc-cyrillic.woff2)', html)
-        self.assertIn('url(/wow/assets/fonts/golos-text-latin.woff2)', html)
-        self.assertIn('url(/wow/assets/fonts/golos-text-latin-ext.woff2)', html)
+        self.assertRegex(html, r'url\(/wow/assets/fonts/spectral-sc-cyrillic\.woff2\?v=\w{8}\)')
+        self.assertRegex(html, r'url\(/wow/assets/fonts/golos-text-latin\.woff2\?v=\w{8}\)')
+        self.assertRegex(html, r'url\(/wow/assets/fonts/golos-text-latin-ext\.woff2\?v=\w{8}\)')
+
+    def test_assets_have_version(self):
+        """Всё под /assets/ и /wow/assets/ (и /favicon.ico) идёт с ?v=<хэш>: HTML no-cache, файлы у браузера 7 дней."""
+        for lang in build.C.LANGS:
+            for html in (build.render(lang), build.render_404(lang)):
+                bare = re.findall(r'(?:/wow)?/assets/[\w./-]+\.(?:png|jpe?g|webp|avif|woff2|ico|svg)(?!\?v=\w{8})|/favicon\.ico(?!\?v=)', html)
+                self.assertEqual(bare, [], lang)
+                self.assertIn('/favicon.ico?v=', html)
+                self.assertRegex(html, r'/wow/assets/icons/icon-192\.png\?v=\w{8}')
+                self.assertRegex(html, r'content="https://gabella\.site/assets/og-\w+\.jpg\?v=\w{8}"')
 
     def test_disclaimer(self):
         for lang in content.LANGS:
