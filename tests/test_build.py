@@ -174,6 +174,13 @@ class JsTest(unittest.TestCase):
         self.assertIn("getElementById('cd')", html)
         self.assertNotIn('innerHTML', html)
 
+    def test_theme_key_shared_with_guide(self):
+        for lang in content.LANGS:
+            html = build.render(lang)
+            self.assertIn("localStorage.getItem('wf-theme')", html)
+            self.assertIn(':root[data-theme="light"] {', html)
+            self.assertLess(html.index("getItem('wf-theme')"), html.index('<style>'))
+
     def test_hidden_attribute_beats_grid_display(self):
         html = build.render('en')
         self.assertIn('[hidden] { display: none !important; }', html)
