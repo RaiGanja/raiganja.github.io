@@ -152,7 +152,7 @@ class BodyTest(unittest.TestCase):
 
     def test_fonts_from_guide(self):
         html = build.render('ru')
-        self.assertIn('url(/wow/assets/fonts/bona-nova-sc-cyrillic.woff2)', html)
+        self.assertIn('url(/wow/assets/fonts/spectral-sc-cyrillic.woff2)', html)
         self.assertIn('url(/wow/assets/fonts/golos-text-latin.woff2)', html)
         self.assertIn('url(/wow/assets/fonts/golos-text-latin-ext.woff2)', html)
 

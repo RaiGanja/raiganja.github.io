@@ -244,9 +244,9 @@ LATX = ('U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304
 
 
 def font_faces():
-    rows = [('Bona Nova SC', '400 700', 'bona-nova-sc-cyrillic', CYR),
-            ('Bona Nova SC', '400 700', 'bona-nova-sc-latin-ext', LATX),
-            ('Bona Nova SC', '400 700', 'bona-nova-sc-latin', LAT),
+    rows = [('Spectral SC', '400 700', 'spectral-sc-cyrillic', CYR),
+            ('Spectral SC', '400 700', 'spectral-sc-latin-ext', LATX),
+            ('Spectral SC', '400 700', 'spectral-sc-latin', LAT),
             ('Golos Text', '400 600', 'golos-text-cyrillic', CYR),
             ('Golos Text', '400 600', 'golos-text-latin-ext', LATX),
             ('Golos Text', '400 600', 'golos-text-latin', LAT)]
@@ -257,7 +257,7 @@ def font_faces():
 CSS = '''
 :root { --bg: #050505; --fg: #ece6d8; --muted: #a8a8a8; --gold: #c9a54a; --gold-2: #e0c27a; --gold-ink: #15110a;
   --panel: rgba(8,8,8,.94); --panel-2: #141414; --pline: rgba(255,255,255,.08); --wrap: 1240px; --ease: cubic-bezier(.2,.7,.2,1);
-  --font-display: "Bona Nova SC", Georgia, "Times New Roman", serif; --font-body: "Golos Text", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Spectral SC", Georgia, "Times New Roman", serif; --font-body: "Golos Text", "Segoe UI", system-ui, sans-serif;
   color-scheme: dark; }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -265,10 +265,10 @@ html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--font-body); -webkit-font-smoothing: antialiased; }
 a { color: inherit; }
 img { display: block; max-width: 100%; }
-h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03em; line-height: 1.1; margin: 0; text-wrap: balance; }
+h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: .03em; line-height: 1.1; margin: 0; text-wrap: balance; }
 .wrap { width: min(var(--wrap), 100% - 32px); margin-inline: auto; }
 .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 0; }
-.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 700 1.35rem/1 var(--font-display); letter-spacing: .04em; color: var(--gold); }
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 600 1.35rem/1 var(--font-display); letter-spacing: .04em; color: var(--gold); }
 .logo img { border-radius: 8px; }
 .langsel { position: relative; }
 .langbtn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid color-mix(in srgb, currentColor 30%, transparent); border-radius: 8px; background: transparent; color: inherit; font: inherit; font-weight: 600; font-size: .8rem; letter-spacing: .04em; cursor: pointer; }
@@ -302,7 +302,7 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
 .new { color: var(--gold-2); font-weight: 600; font-size: 1.05rem; }
 .dot { color: var(--muted); }
 .hero h2 { font-size: clamp(2.2rem, 6vw, 4.2rem); text-shadow: 0 2px 18px rgba(0,0,0,.6); }
-.cd { font: 700 1.25rem/1.2 var(--font-display); letter-spacing: .03em; font-variant-numeric: tabular-nums; }
+.cd { font: 600 1.25rem/1.2 var(--font-display); letter-spacing: .03em; font-variant-numeric: tabular-nums; }
 .hero-cta { margin-top: 6px; padding: 12px 22px; border-radius: 8px; background: var(--gold); color: var(--gold-ink);
   font-weight: 600; text-decoration: none; transition: background .2s; }
 .hero-cta:hover { background: var(--gold-2); }
@@ -318,7 +318,7 @@ h1, h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: .03
 .tile::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(5,5,5,0) 25%, rgba(5,5,5,.9) 100%); }
 .tile:hover { border-color: rgba(224,194,122,.6); }
 .tile:hover img { filter: none; transform: scale(1.04); }
-.tile b { font: 700 1.12rem/1.2 var(--font-display); letter-spacing: .03em; text-shadow: 0 1px 8px rgba(0,0,0,.7); }
+.tile b { font: 600 1.12rem/1.2 var(--font-display); letter-spacing: .03em; text-shadow: 0 1px 8px rgba(0,0,0,.7); }
 .news ul { list-style: none; margin: 0; padding: 6px 18px; }
 .news li { display: grid; grid-template-columns: 6.5em 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--pline); }
 .news time { color: var(--muted); font-variant-numeric: tabular-nums; }
