@@ -120,6 +120,7 @@ h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: .03
 .news li { display: grid; grid-template-columns: 6.5em 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--pline); }
 .news time { color: var(--muted); font-variant-numeric: tabular-nums; }
 .news li a { text-decoration: none; }
+.news li p { margin: 2px 0 0; color: var(--muted); font-size: .92rem; }
 .news li a:hover { color: var(--gold-2); }
 #news-all { display: inline-block; margin: 12px 18px 16px; color: var(--gold); text-decoration: none; font-weight: 600; }
 .foot { margin-top: 64px; padding: 24px 0 40px; border-top: 1px solid var(--pline); display: grid; gap: 10px; color: var(--muted); font-size: .92rem; }
@@ -178,16 +179,22 @@ h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: .03
     cd.textContent = cd.dataset.left.replace('%d', d).replace('%h', h);
   } else cd.textContent = cd.dataset.done;
 
-  const box = document.getElementById('news');
-  fetch('/wow/assets/news.json').then(r => r.ok ? r.json() : []).then(list => {
-    if (!Array.isArray(list) || !list.length) return;
+  // Свои записи гида (updates.json), язык страницы; нет записи на языке — en. Ссылки только на gabella.site, ведут на страницу гида этого языка.
+  const box = document.getElementById('news'), lang = document.documentElement.lang.split('-')[0], gl = lang === 'ru' ? '/wow/' : `/wow/${lang}/`;
+  const pick = o => o && typeof o === 'object' ? (typeof o[lang] === 'string' && o[lang] ? o[lang] : typeof o.en === 'string' ? o.en : '') : '';
+  fetch('/wow/updates.json').then(r => r.ok ? r.json() : null).then(data => {
+    const list = data && data.updates;
+    if (!Array.isArray(list)) return;
     const ul = box.querySelector('ul');
-    list.filter(n => n && typeof n.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(n.date) && typeof n.title === 'string' && n.title && typeof n.url === 'string' && /^https:/.test(n.url))
+    list.map(n => n && typeof n.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(n.date) && { date: n.date, title: pick(n.title), text: pick(n.text), url: pick(n.url) || '', own: !!(n.url && n.url[lang]) })
+      .filter(n => n && n.title && /^https:\/\/gabella\.site\//.test(n.url))
       .sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5).forEach(n => {
-        const li = document.createElement('li'), t = document.createElement('time'), a = document.createElement('a');
+        const li = document.createElement('li'), t = document.createElement('time'), d = document.createElement('div'), a = document.createElement('a'), u = new URL(n.url);
         t.dateTime = n.date; t.textContent = n.date.split('-').reverse().join('.');
-        a.href = n.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = n.title;
-        li.append(t, a); ul.append(li);
+        a.href = (n.own ? u.pathname : u.pathname.replace(/^\/wow\/(en\/)?/, gl)) + u.hash;
+        a.textContent = n.title; d.append(a);
+        if (n.text) { const p = document.createElement('p'); p.textContent = n.text; d.append(p); }
+        li.append(t, d); ul.append(li);
       });
     if (ul.children.length) box.hidden = false;
   }).catch(() => {});

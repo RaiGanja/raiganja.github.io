@@ -170,7 +170,7 @@ class BodyTest(unittest.TestCase):
 class JsTest(unittest.TestCase):
     def test_script_reads_news_and_countdown(self):
         html = build.render('ru')
-        self.assertIn("fetch('/wow/assets/news.json')", html)
+        self.assertIn("fetch('/wow/updates.json')", html)
         self.assertIn("getElementById('cd')", html)
         self.assertNotIn('innerHTML', html)
 
@@ -185,7 +185,8 @@ class JsTest(unittest.TestCase):
         html = build.render('en')
         self.assertIn('[hidden] { display: none !important; }', html)
         self.assertIn(r"/^\d{4}-\d{2}-\d{2}$/.test(n.date)", html)
-        self.assertIn("typeof n.title === 'string'", html)
+        self.assertIn("typeof o.en === 'string'", html)
+        self.assertNotIn('news.json', html)
 
 
 class SeoTest(unittest.TestCase):
