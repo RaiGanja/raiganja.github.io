@@ -214,7 +214,7 @@ def body(lang, nf=False):
 {hero_pic(g["art"])}
 <div class="hero-txt">
 <h2 id="g-{g["id"]}">{esc(g["name"][lang])}</h2>
-<p class="meta"><span class="new">{esc(t["new"])}</span><span aria-hidden="true" class="dot">·</span><span id="cd" class="cd" data-at="{C.RELEASE}" data-left="{esc(t["rel_left"])}" data-done="{esc(t["rel_done"])}">{esc(t["rel_static"])}</span></p>
+<p class="meta"><span id="cd" class="cd" data-at="{C.RELEASE}" data-left="{esc(t["rel_left"])}" data-done="{esc(t["rel_done"])}">{esc(t["rel_static"])}</span></p>
 <a href="{guide(lang)}" class="hero-cta">{esc(t["open"])}</a>
 </div>
 </section>
@@ -298,8 +298,6 @@ h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: .03
   background: linear-gradient(180deg, rgba(5,5,5,0) 30%, rgba(5,5,5,.55) 60%, rgba(5,5,5,.95) 100%); }
 .hero-txt { padding: clamp(20px, 4vw, 40px); display: grid; gap: 10px; justify-items: start; }
 .meta { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: .5em; row-gap: 2px; }
-.new { color: var(--gold-2); font-weight: 600; font-size: 1.05rem; }
-.dot { color: var(--muted); }
 .hero h2 { font-size: clamp(2.2rem, 6vw, 4.2rem); text-shadow: 0 2px 18px rgba(0,0,0,.6); }
 .cd { font: 600 1.25rem/1.2 var(--font-display); letter-spacing: .03em; font-variant-numeric: tabular-nums; }
 .hero-cta { margin-top: 6px; padding: 12px 22px; border-radius: 8px; background: var(--gold); color: var(--gold-ink);
@@ -328,13 +326,11 @@ h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: .03
 .foot p { margin: 0; }
 .foot .tm { font-size: .8rem; opacity: .8; }
 :focus-visible { outline: 2px solid var(--gold-2); outline-offset: 2px; }
-@media (max-width: 719px) { .meta .dot { display: none; } }
 @media (max-width: 1023px) {
   .tiles { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 46%; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 14px; overscroll-behavior-x: contain; }
   .tile { scroll-snap-align: start; }
 }
 @media (max-width: 719px) {
-  .meta { flex-direction: column; align-items: flex-start; }
   .tiles { grid-auto-columns: 68%; }
   .hero { min-height: 440px; }
   .news li { grid-template-columns: none; gap: 2px; }
