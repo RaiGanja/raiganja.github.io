@@ -57,18 +57,18 @@ JS = r'''
   fetch('/wow/updates.json').then(r => r.ok ? r.json() : null).then(data => {
     const list = data && data.updates;
     if (!Array.isArray(list)) return;
-    const ul = box.querySelector('ul');
+    const row = box.querySelector('.row3');
     list.map(n => n && typeof n.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(n.date) && { date: n.date, title: pick(n.title), text: pick(n.text), url: pick(n.url) || '', own: !!(n.url && n.url[lang]) })
       .filter(n => n && n.title && /^https:\/\/gabella\.site\//.test(n.url))
-      .sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5).forEach(n => {
-        const li = document.createElement('li'), t = document.createElement('time'), d = document.createElement('div'), a = document.createElement('a'), u = new URL(n.url);
-        t.dateTime = n.date; t.textContent = n.date.split('-').reverse().join('.');
-        a.href = (n.own ? u.pathname : u.pathname.replace(/^\/wow\/(en\/)?/, gl)) + u.hash;
-        a.textContent = n.title; d.append(a);
-        if (n.text) { const p = document.createElement('p'); p.textContent = n.text; d.append(p); }
-        li.append(t, d); ul.append(li);
+      .sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3).forEach(n => {   // three cards, as «Fresh» on the guide's home
+        const a = document.createElement('a'), t = document.createElement('time'), b = document.createElement('b'), u = new URL(n.url);
+        a.className = 'nc'; a.href = (n.own ? u.pathname : u.pathname.replace(/^\/wow\/(en\/)?/, gl)) + u.hash;
+        t.dateTime = n.date; t.textContent = n.date.split('-').reverse().slice(0, 2).join('.');
+        b.textContent = n.title; a.append(t, b);
+        if (n.text) { const p = document.createElement('span'); p.textContent = n.text; a.append(p); }
+        row.append(a);
       });
-    if (ul.children.length) box.hidden = false;
+    if (row.children.length) box.hidden = false;
   }).catch(() => {});
 })();
 '''
@@ -165,17 +165,21 @@ def pic(name, alt='', lazy=True):
 
 
 def hero_pic(name):
+    """Full-width scene as on the guide's home: the guide's cuts (phone 600-1000, wide 960-3840) and, for the ultrawide
+    sides, the same scene small and blurred (.hero-amb)."""
     def m(ext):
-        return f'{art(f"{name}-m-600.{ext}")} 600w, {art(f"{name}-m-1000.{ext}")} 1000w'
+        return ', '.join(f'{art(f"{name}-m-{w}.{ext}")} {w}w' for w in (600, 800, 1000))
 
     def d(ext):
-        return f'{art(f"{name}-960.{ext}")} 960w, {art(f"{name}-1440.{ext}")} 1440w, {art(f"{name}-1920.{ext}")} 1920w'
-    return ('<picture class="hero-art">'
+        return ', '.join(f'{art(f"{name}-{w}.{ext}")} {w}w' for w in (960, 1440, 1920, 2560, 3840))
+    sizes = '(max-aspect-ratio: 21/10) 210vh, 100vw'
+    return (f'<img class="hero-amb" src="{art(f"{name}-960.webp")}" alt="" width="960" height="536" aria-hidden="true" decoding="async">'
+            '<picture class="hero-art">'
             f'<source media="(max-width: 719px)" type="image/avif" srcset="{m("avif")}" sizes="100vw">'
             f'<source media="(max-width: 719px)" type="image/webp" srcset="{m("webp")}" sizes="100vw">'
-            f'<source type="image/avif" srcset="{d("avif")}" sizes="(min-width: 3000px) 1720px, (min-width: 2200px) 1560px, (min-width: 1272px) 1240px, 100vw">'
-            f'<source type="image/webp" srcset="{d("webp")}" sizes="(min-width: 3000px) 1720px, (min-width: 2200px) 1560px, (min-width: 1272px) 1240px, 100vw">'
-            f'<img src="{art(f"{name}-1440.webp")}" alt="" width="1440" height="804" fetchpriority="high" decoding="async"></picture>')
+            f'<source type="image/avif" srcset="{d("avif")}" sizes="{sizes}">'
+            f'<source type="image/webp" srcset="{d("webp")}" sizes="{sizes}">'
+            f'<img src="{art(f"{name}-1920.webp")}" alt="" width="1920" height="1072" fetchpriority="high" decoding="async"></picture>')
 
 
 def lang_link(l, lang, inner):
@@ -210,27 +214,29 @@ def tiles(lang):
 def body(lang, nf=False):
     t, g = C.T[lang], C.GAMES[0]
     h1, lead = (t['nf_h'], t['nf_lead']) if nf else (t['h1'], t['lead'])
-    return f'''<header class="top wrap">
-<a class="logo" href="/{C.PREFIX[lang]}"><img src="/wow/assets/icons/icon-192.png" alt="" width="32" height="32"><span>Gabella</span></a>
+    return f'''<header class="top"><div class="wrap">
+<a class="logo" href="/{C.PREFIX[lang]}"><img class="mark" src="/wow/assets/brand/mark.webp" alt="" width="40" height="40"><span>Gabella</span></a>
 {lang_switch(lang)}
-</header>
+</div></header>
 <main>
-<div class="intro wrap"><h1>{esc(h1)}</h1><p>{esc(lead)}</p></div>
-<section class="hero wrap" aria-labelledby="g-{g["id"]}">
+<section class="hero" aria-labelledby="g-{g["id"]}">
 {hero_pic(g["art"])}
+<div class="wrap hero-in">
+<div class="intro"><h1>{esc(h1)}</h1><p>{esc(lead)}</p></div>
 <div class="hero-txt">
 <h2 id="g-{g["id"]}">{esc(g["name"][lang])}</h2>
 <p class="meta"><span id="cd" class="cd" data-at="{C.RELEASE}" data-left="{esc(t["rel_left"])}" data-done="{esc(t["rel_done"])}">{esc(t["rel_static"])}</span></p>
 <a href="{guide(lang)}" class="hero-cta">{esc(t["open"])}</a>
 </div>
+</div>
 </section>
 <section class="sections wrap" aria-labelledby="sec-h">
 <h2 id="sec-h">{esc(t["sections_h"])}</h2>
-<div class="frame"><div class="tiles">{tiles(lang)}</div></div>
+<div class="tiles">{tiles(lang)}</div>
 </section>
 <section id="news" class="news wrap" hidden aria-labelledby="news-h">
-<h2 id="news-h">{esc(t["news_h"])}</h2>
-<div class="frame"><ul></ul><a href="{guide(lang)}guides/news/" id="news-all">{esc(t["news_all"])} →</a></div>
+<div class="hh"><h2 id="news-h">{esc(t["news_h"])}</h2><a href="{guide(lang)}guides/news/" id="news-all">{esc(t["news_all"])} →</a></div>
+<div class="row3"></div>
 </section>
 </main>
 <footer class="foot wrap">
@@ -265,8 +271,8 @@ CSS = '''
   --font-display: "Spectral SC", Georgia, "Times New Roman", serif; --font-body: "Golos Text", "Segoe UI", system-ui, sans-serif;
   color-scheme: dark; }
 /* Ultrawide, as in the guide: the column and the type grow a step from 2200 px; up to 2199 px nothing changes. */
-@media (min-width: 2200px) { :root { --wrap: 1560px; } html { font-size: 17px; } html .hero { min-height: 650px; } }
-@media (min-width: 3000px) { :root { --wrap: 1720px; } html { font-size: 18px; } html .hero { min-height: 720px; } }
+@media (min-width: 2200px) { :root { --wrap: 1560px; } html { font-size: 17px; } }
+@media (min-width: 3000px) { :root { --wrap: 1720px; } html { font-size: 18px; } }
 /* Светлая тема — как в гиде: localStorage wf-theme, без выбора — системная (prefers-color-scheme). Палитра как у светлой темы гида.
    Арт и текст на нём остаются ночными, как в гиде. */
 :root[data-theme="light"] { --bg: #f3f2ee; --fg: #17161a; --muted: #595650; --gold: #7d5c12; --gold-2: #7d5c12; --gold-ink: #ffffff;
@@ -282,9 +288,13 @@ a { color: inherit; }
 img { display: block; max-width: 100%; }
 h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: .03em; line-height: 1.1; margin: 0; text-wrap: balance; }
 .wrap { width: min(var(--wrap), 100% - 32px); margin-inline: auto; }
-.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 0; }
-.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 600 1.35rem/1 var(--font-display); letter-spacing: .04em; color: var(--gold); }
-.logo img { border-radius: 8px; }
+/* Top bar as in the guide: the emblem in a gold hairline, the name in the display face, over the scene */
+.top { position: absolute; inset: 0 0 auto 0; z-index: 30; height: 64px; color: #f1ece0; background: linear-gradient(rgba(5,6,8,.62), rgba(5,6,8,0)); }
+.top .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.logo { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; text-decoration: none; color: inherit; font: 600 1.375rem/1 var(--font-display); letter-spacing: .02em; }
+.mark { width: 40px; height: 40px; flex: none; border-radius: 8px; box-shadow: 0 0 0 1px rgba(201,165,74,.35); }
+@media (min-width: 2200px) { .top { height: 68px; } .mark { width: 43px; height: 43px; } .langbtn { min-width: 47px; min-height: 47px; } }
+@media (min-width: 3000px) { .top { height: 72px; } .mark { width: 45px; height: 45px; } .langbtn { min-width: 50px; min-height: 50px; } }
 .langsel { position: relative; }
 .langbtn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid color-mix(in srgb, currentColor 30%, transparent); border-radius: 8px; background: transparent; color: inherit; font: inherit; font-weight: 600; font-size: .8rem; letter-spacing: .04em; cursor: pointer; }
 .langbtn::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid; border-bottom: 1.5px solid; transform: translateY(-2px) rotate(45deg); opacity: .7; }
@@ -302,28 +312,36 @@ h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: .03
 .langhint a { color: var(--gold-2); font-weight: 600; white-space: nowrap; }
 .langhint button { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border: 0; border-radius: 7px; background: transparent; color: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; }
 .langhint button:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
-.intro { padding: 28px 0 22px; display: grid; gap: 8px; }
-.intro h1 { font-size: clamp(2rem, 5vw, 3.4rem); }
-.intro p { margin: 0; color: var(--muted); font-size: 1.08rem; max-width: 60ch; }
-.hero { position: relative; isolation: isolate; overflow: hidden; border-radius: 10px; border: 1px solid var(--pline);
-  min-height: clamp(360px, 42vw, 520px); display: grid; align-items: end; }
+/* Hero: the full-width scene of the guide's home, text on its dark left side, the bottom melting into the page */
+.hero { --hh: clamp(560px, 88svh, 1000px); position: relative; isolation: isolate; overflow: hidden; min-height: var(--hh); display: grid; color: #ece6d8; background: #050505; }
 .hero-art, .hero-art img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .hero-art { z-index: -2; }
-.hero-art img { object-fit: cover; object-position: 50% 40%; }
-.hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(180deg, rgba(5,5,5,0) 30%, rgba(5,5,5,.55) 60%, rgba(5,5,5,.95) 100%); }
-.hero-txt { padding: clamp(20px, 4vw, 40px); display: grid; gap: 10px; justify-items: start; }
+.hero-art img { object-fit: cover; object-position: 62% 50%; }
+.hero-amb { display: none; }
+/* past 21:10 the scene stops growing: it keeps to the right, its left edge melts into a blurred copy (as /wow/) */
+@media (min-width: 720px) {
+  .hero-art { left: auto; width: min(100%, calc(var(--hh) * 2.1)); -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18%); mask-image: linear-gradient(90deg, transparent 0, #000 18%); }
+  .hero-amb { display: block; position: absolute; inset: 0; z-index: -3; width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; filter: blur(32px) brightness(.5) saturate(1.15); clip-path: inset(0); }
+}
+.hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background:
+  linear-gradient(90deg, rgb(5 5 5 / .5) calc(50% - 800px), rgb(5 5 5 / .46) calc(50% - 420px), rgb(5 5 5 / .3) calc(50% + 100px), rgb(5 5 5 / .06) calc(50% + 500px)),
+  linear-gradient(180deg, rgb(5 5 5 / .42) 0%, rgb(5 5 5 / 0) 24%, rgb(5 5 5 / 0) 56%, rgb(5 5 5 / .9) 90%, var(--bg) 100%); }
+.hero-in { display: grid; align-content: space-between; gap: 40px; padding: calc(64px + clamp(32px, 8vh, 96px)) 0 clamp(40px, 7vh, 80px); }
+.intro { display: grid; gap: 12px; max-width: 40rem; text-shadow: 0 1px 2px rgba(5,5,5,.7), 0 2px 22px rgba(5,5,5,.55); }
+.intro h1 { font-size: clamp(2.6rem, 1.6rem + 3vw, 4.6rem); line-height: 1; color: #f1ece0; }
+.intro p { margin: 0; color: #e8e2d4; font-size: 1.125rem; max-width: 34rem; }
+.hero-txt { display: grid; gap: 12px; justify-items: start; }
 .meta { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: .5em; row-gap: 2px; }
-.hero h2 { font-size: clamp(2.2rem, 6vw, 4.2rem); text-shadow: 0 2px 18px rgba(0,0,0,.6); }
-.cd { font: 600 1.25rem/1.2 var(--font-display); letter-spacing: .03em; font-variant-numeric: tabular-nums; }
-.hero-cta { margin-top: 6px; padding: 12px 22px; border-radius: 8px; background: var(--gold); color: var(--gold-ink);
+.hero h2 { font-size: clamp(2.2rem, 1.4rem + 2.6vw, 3.8rem); color: #e0c27a; text-shadow: 0 2px 18px rgba(0,0,0,.6); }
+.cd { font: 600 1.25rem/1.2 var(--font-display); letter-spacing: .03em; font-variant-numeric: tabular-nums lining-nums; text-shadow: 0 1px 8px rgba(0,0,0,.7); }
+.hero-cta { margin-top: 6px; min-height: 52px; display: inline-flex; align-items: center; padding: 0 26px; border-radius: 7px; background: #c9a54a; color: #15110a;
   font-weight: 600; text-decoration: none; transition: background .2s; }
-.hero-cta:hover { background: var(--gold-2); }
-.sections, .news { margin-top: 44px; display: grid; gap: 16px; }
+.hero-cta:hover { background: #e0c27a; }
+.sections, .news { margin-top: 56px; display: grid; gap: 18px; }
 .sections h2, .news h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); }
 .frame { border: 1px solid var(--pline); border-radius: 10px; background: var(--panel); box-shadow: 0 18px 48px rgba(0,0,0,.35); min-width: 0; }
-.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 14px; }
-.tile { position: relative; isolation: isolate; overflow: hidden; height: 168px; padding: 0 14px 14px; display: grid; align-content: end;
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.tile { position: relative; isolation: isolate; overflow: hidden; height: 210px; padding: 0 14px 14px; display: grid; align-content: end;
   border: 1px solid rgba(255,255,255,.1); border-radius: 7px; background: #0a0a0a; color: #f3efe6; text-decoration: none; transition: border-color .2s; }
 .tile picture, .tile img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .tile picture { z-index: -2; }
@@ -331,14 +349,18 @@ h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: .03
 .tile::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(5,5,5,0) 25%, rgba(5,5,5,.9) 100%); }
 .tile:hover { border-color: rgba(224,194,122,.6); }
 .tile:hover img { filter: none; transform: scale(1.04); }
-.tile b { font: 600 1.12rem/1.2 var(--font-display); letter-spacing: .03em; text-shadow: 0 1px 8px rgba(0,0,0,.7); }
-.news ul { list-style: none; margin: 0; padding: 6px 18px; }
-.news li { display: grid; grid-template-columns: 6.5em 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--pline); }
-.news time { color: var(--muted); font-variant-numeric: tabular-nums; }
-.news li a { text-decoration: none; }
-.news li p { margin: 2px 0 0; color: var(--muted); font-size: .92rem; }
-.news li a:hover { color: var(--gold-2); }
-#news-all { display: inline-block; margin: 12px 18px 16px; color: var(--gold); text-decoration: none; font-weight: 600; }
+.tile b { font-weight: 700; font-size: 1.125rem; line-height: 1.2; text-shadow: 0 1px 8px rgba(0,0,0,.7); }   /* the guide's tile titles */
+@media (min-width: 2200px) { .tile { height: 260px; } }
+/* News as the guide's «Fresh» cards */
+.news .hh { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+#news-all { min-height: 44px; display: inline-flex; align-items: center; color: var(--gold-2); font-weight: 600; text-decoration: none; }
+#news-all:hover { text-decoration: underline; text-underline-offset: 3px; }
+.row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.nc { display: grid; gap: 4px; align-content: start; padding: 14px 18px 16px; border: 1px solid var(--pline); border-radius: 10px; background: var(--panel-2); color: var(--fg); text-decoration: none; transition: border-color .2s; }
+.nc:hover { border-color: var(--gold-2); }
+.nc time { font-size: .8125rem; color: var(--muted); font-variant-numeric: lining-nums tabular-nums; }
+.nc b { font-weight: 600; line-height: 1.3; }
+.nc span { font-size: .875rem; color: var(--muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .foot { margin-top: 64px; padding: 24px 0 40px; border-top: 1px solid var(--pline); display: grid; gap: 10px; color: var(--muted); font-size: .92rem; }
 .foot p { margin: 0; }
 .foot .tm { font-size: .8rem; opacity: .8; }
@@ -349,8 +371,11 @@ h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: .03
 }
 @media (max-width: 719px) {
   .tiles { grid-auto-columns: 68%; }
-  .hero { min-height: 440px; }
-  .news li { grid-template-columns: none; gap: 2px; }
+  .row3 { grid-template-columns: minmax(0, 1fr); }
+  .hero { --hh: max(560px, 92svh); }
+  .hero-art img { object-position: 78% 50%; }
+  .hero::before { background: linear-gradient(180deg, rgb(5 5 5 / .5) 0%, rgb(5 5 5 / .1) 22%, rgb(5 5 5 / .2) 45%, rgb(5 5 5 / .88) 72%, var(--bg) 100%); }
+  .hero-in { padding-top: calc(64px + 24px); align-content: end; gap: 26px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 '''
