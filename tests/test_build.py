@@ -43,6 +43,11 @@ class HeadTest(unittest.TestCase):
             self.assertIn(f'<title>{content.T[lang]["title"]}</title>', html)
             self.assertRegex(html, rf'<meta property="og:image" content="{re.escape(content.SITE)}/assets/og-{lang}\.jpg\?v=\w{{8}}">')
             self.assertIn(f'<meta property="og:locale" content="{content.LOCALE[lang]}">', html)
+            og = build.esc(content.T[lang]['og_title'])
+            self.assertIn(f'<meta property="og:title" content="{og}">', html)
+            self.assertIn(f'<meta name="twitter:title" content="{og}">', html)
+            self.assertIn(f'<meta property="og:description" content="{build.esc(content.T[lang]["og_desc"])}">', html)
+            self.assertRegex(html, r'<meta name="twitter:image" content="https://gabella\.site/assets/og-\w+\.jpg\?v=\w{8}">')
 
     def test_no_refresh_and_no_sw(self):
         for lang in content.LANGS:

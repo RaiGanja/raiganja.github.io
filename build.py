@@ -428,7 +428,9 @@ def render(lang, nf=False):
         '@@DESC@@': esc(t['desc']),
         '@@URL@@': url(lang),
         '@@OG@@': f'{C.SITE}/assets/og-{lang}.jpg',
-        '@@OG_ALT@@': esc(t['og_alt']),
+        '@@OG_TITLE@@': esc(t['og_title']),
+        '@@OG_DESC@@': esc(t['og_desc']),
+        '@@OG_ALT@@': esc(t['og_title']),
         '@@LOCALE@@': C.LOCALE[lang],
     }
     for k, v in subs.items():

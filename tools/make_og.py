@@ -20,23 +20,27 @@ def f(rel):
 
 
 def page(lang):
-    return f'''<!doctype html><meta charset="utf-8"><style>
-@font-face{{font-family:"Bona Nova SC";font-weight:700;src:url({f("fonts/bona-nova-sc-cyrillic.woff2")});unicode-range:U+0400-045F,U+0490-0491}}
-@font-face{{font-family:"Bona Nova SC";font-weight:700;src:url({f("fonts/bona-nova-sc-latin.woff2")});unicode-range:U+0000-00FF,U+2000-206F}}
-@font-face{{font-family:"Bona Nova SC";font-weight:700;src:url({f("fonts/bona-nova-sc-latin-ext.woff2")});unicode-range:U+0100-024F}}
-@font-face{{font-family:"Golos Text";src:url({f("fonts/golos-text-cyrillic.woff2")});unicode-range:U+0400-045F,U+0490-0491}}
-@font-face{{font-family:"Golos Text";src:url({f("fonts/golos-text-latin.woff2")});unicode-range:U+0000-00FF,U+2000-206F}}
-@font-face{{font-family:"Golos Text";src:url({f("fonts/golos-text-latin-ext.woff2")});unicode-range:U+0100-024F}}
+    fonts = ''.join(
+        f'@font-face{{font-family:"{fam}";font-weight:400 700;src:url({f("fonts/" + name)});unicode-range:{rng}}}'
+        for fam, base in (('Spectral SC', 'spectral-sc'), ('Golos Text', 'golos-text'))
+        for name, rng in ((base + '-cyrillic.woff2', 'U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116'),
+                          (base + '-latin-ext.woff2', 'U+0100-02BA,U+1E00-1E9F'), (base + '-latin.woff2', 'U+0000-00FF,U+2000-206F')))
+    return f'''<!doctype html><meta charset="utf-8"><style>{fonts}
 *{{margin:0;box-sizing:border-box}}
-body{{width:1200px;height:630px;position:relative;overflow:hidden;background:#0a0b0d;color:#ece6d8;font-family:"Golos Text"}}
-img{{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%}}
-.shade{{position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,11,13,.92) 0%,rgba(10,11,13,.6) 55%,rgba(10,11,13,.15) 100%)}}
-.txt{{position:absolute;left:72px;bottom:72px;display:grid;gap:18px}}
-.brand{{display:flex;align-items:center;gap:16px;font:700 96px/1 "Bona Nova SC";letter-spacing:.04em;color:#c9a54a}}
-.brand img{{position:static;width:72px;height:72px;border-radius:14px}}
-p{{font-size:36px;color:#ece6d8}}
-</style><body><img src="{f("art/hero_dawn-1440.webp")}" alt=""><div class="shade"></div>
-<div class="txt"><div class="brand"><img src="{f("icons/icon-192.png")}" alt="">Gabella</div><p>{C.T[lang]["og_sub"]}</p></div></body>'''
+body{{width:1200px;height:630px;position:relative;overflow:hidden;background:#050505;color:#efe9da;font-family:"Golos Text";font-variant-numeric:lining-nums}}
+.art{{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:70% 50%}}
+.shade{{position:absolute;inset:0;background:linear-gradient(90deg,#050505 0%,rgba(5,5,5,.92) 34%,rgba(5,5,5,.35) 62%,rgba(5,5,5,0) 80%),
+  linear-gradient(0deg,rgba(5,5,5,.85) 0%,rgba(5,5,5,0) 36%)}}
+.brand{{position:absolute;left:72px;top:56px;display:flex;align-items:center;gap:16px;font:600 30px/1 "Spectral SC";letter-spacing:.04em}}
+.brand img{{width:56px;height:56px;border-radius:10px;box-shadow:0 0 0 1px rgba(201,165,74,.45)}}
+.txt{{position:absolute;left:72px;top:0;bottom:0;width:600px;display:flex;flex-direction:column;justify-content:center;gap:24px}}
+h1{{font:600 92px/1.02 "Spectral SC";letter-spacing:.02em}}
+p{{font-size:34px;line-height:1.3;color:#c9c2b0;text-wrap:balance}}
+.start{{position:absolute;left:72px;bottom:56px;font:600 28px/1 "Spectral SC";letter-spacing:.03em;color:#c9a54a;font-variant-numeric:lining-nums}}
+</style><body><img class="art" src="{f("art/hero_dawn-1440.webp")}" alt=""><div class="shade"></div>
+<div class="brand"><img src="{f("logo.png")}" alt="">Gabella</div>
+<div class="txt"><h1>WoW Forever</h1><p>{C.T[lang]["og_sub"]}</p></div>
+<div class="start">{C.T[lang]["og_start"]}</div></body>'''
 
 
 def shoot(html, out):
