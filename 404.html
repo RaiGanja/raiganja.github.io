@@ -54,6 +54,9 @@
   --panel: rgba(8,8,8,.94); --panel-2: #141414; --pline: rgba(255,255,255,.08); --wrap: 1240px; --ease: cubic-bezier(.2,.7,.2,1);
   --font-display: "Spectral SC", Georgia, "Times New Roman", serif; --font-body: "Golos Text", "Segoe UI", system-ui, sans-serif;
   color-scheme: dark; }
+/* Ultrawide, as in the guide: the column and the type grow a step from 2200 px; up to 2199 px nothing changes. */
+@media (min-width: 2200px) { :root { --wrap: 1560px; } html { font-size: 17px; } html .hero { min-height: 650px; } }
+@media (min-width: 3000px) { :root { --wrap: 1720px; } html { font-size: 18px; } html .hero { min-height: 720px; } }
 /* Светлая тема — как в гиде: localStorage wf-theme, без выбора — системная (prefers-color-scheme). Палитра как у светлой темы гида.
    Арт и текст на нём остаются ночными, как в гиде. */
 :root[data-theme="light"] { --bg: #f3f2ee; --fg: #17161a; --muted: #595650; --gold: #7d5c12; --gold-2: #7d5c12; --gold-ink: #ffffff;
@@ -64,7 +67,7 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--font-body); -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 1rem/1.55 var(--font-body); -webkit-font-smoothing: antialiased; }
 a { color: inherit; }
 img { display: block; max-width: 100%; }
 h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: .03em; line-height: 1.1; margin: 0; text-wrap: balance; }
@@ -151,7 +154,7 @@ h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: .03
 <main>
 <div class="intro wrap"><h1>Страница не найдена</h1><p>Такой страницы нет: ссылка устарела или в адресе опечатка. Разделы гида ниже.</p></div>
 <section class="hero wrap" aria-labelledby="g-wow">
-<picture class="hero-art"><source media="(max-width: 719px)" type="image/avif" srcset="/wow/assets/art/hero_dawn-m-600.avif?v=9389549b 600w, /wow/assets/art/hero_dawn-m-1000.avif?v=2cd9ecc7 1000w" sizes="100vw"><source media="(max-width: 719px)" type="image/webp" srcset="/wow/assets/art/hero_dawn-m-600.webp?v=0e9f979b 600w, /wow/assets/art/hero_dawn-m-1000.webp?v=5a03a3fe 1000w" sizes="100vw"><source type="image/avif" srcset="/wow/assets/art/hero_dawn-960.avif?v=afda6d75 960w, /wow/assets/art/hero_dawn-1440.avif?v=f3ee1e7c 1440w, /wow/assets/art/hero_dawn-1920.avif?v=a67f23cd 1920w" sizes="(min-width: 1272px) 1240px, 100vw"><source type="image/webp" srcset="/wow/assets/art/hero_dawn-960.webp?v=4b68f21c 960w, /wow/assets/art/hero_dawn-1440.webp?v=df97bfc5 1440w, /wow/assets/art/hero_dawn-1920.webp?v=8f18764b 1920w" sizes="(min-width: 1272px) 1240px, 100vw"><img src="/wow/assets/art/hero_dawn-1440.webp?v=df97bfc5" alt="" width="1440" height="804" fetchpriority="high" decoding="async"></picture>
+<picture class="hero-art"><source media="(max-width: 719px)" type="image/avif" srcset="/wow/assets/art/hero_dawn-m-600.avif?v=9389549b 600w, /wow/assets/art/hero_dawn-m-1000.avif?v=2cd9ecc7 1000w" sizes="100vw"><source media="(max-width: 719px)" type="image/webp" srcset="/wow/assets/art/hero_dawn-m-600.webp?v=0e9f979b 600w, /wow/assets/art/hero_dawn-m-1000.webp?v=5a03a3fe 1000w" sizes="100vw"><source type="image/avif" srcset="/wow/assets/art/hero_dawn-960.avif?v=afda6d75 960w, /wow/assets/art/hero_dawn-1440.avif?v=f3ee1e7c 1440w, /wow/assets/art/hero_dawn-1920.avif?v=a67f23cd 1920w" sizes="(min-width: 3000px) 1720px, (min-width: 2200px) 1560px, (min-width: 1272px) 1240px, 100vw"><source type="image/webp" srcset="/wow/assets/art/hero_dawn-960.webp?v=4b68f21c 960w, /wow/assets/art/hero_dawn-1440.webp?v=df97bfc5 1440w, /wow/assets/art/hero_dawn-1920.webp?v=8f18764b 1920w" sizes="(min-width: 3000px) 1720px, (min-width: 2200px) 1560px, (min-width: 1272px) 1240px, 100vw"><img src="/wow/assets/art/hero_dawn-1440.webp?v=df97bfc5" alt="" width="1440" height="804" fetchpriority="high" decoding="async"></picture>
 <div class="hero-txt">
 <h2 id="g-wow">WoW Forever</h2>
 <p class="meta"><span id="cd" class="cd" data-at="2026-11-04T23:00:00Z" data-left="Релиз через %d дн %h ч" data-done="Вышла 04.11.2026">Релиз 04.11.2026</span></p>

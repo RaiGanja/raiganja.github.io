@@ -173,8 +173,8 @@ def hero_pic(name):
     return ('<picture class="hero-art">'
             f'<source media="(max-width: 719px)" type="image/avif" srcset="{m("avif")}" sizes="100vw">'
             f'<source media="(max-width: 719px)" type="image/webp" srcset="{m("webp")}" sizes="100vw">'
-            f'<source type="image/avif" srcset="{d("avif")}" sizes="(min-width: 1272px) 1240px, 100vw">'
-            f'<source type="image/webp" srcset="{d("webp")}" sizes="(min-width: 1272px) 1240px, 100vw">'
+            f'<source type="image/avif" srcset="{d("avif")}" sizes="(min-width: 3000px) 1720px, (min-width: 2200px) 1560px, (min-width: 1272px) 1240px, 100vw">'
+            f'<source type="image/webp" srcset="{d("webp")}" sizes="(min-width: 3000px) 1720px, (min-width: 2200px) 1560px, (min-width: 1272px) 1240px, 100vw">'
             f'<img src="{art(f"{name}-1440.webp")}" alt="" width="1440" height="804" fetchpriority="high" decoding="async"></picture>')
 
 
@@ -264,6 +264,9 @@ CSS = '''
   --panel: rgba(8,8,8,.94); --panel-2: #141414; --pline: rgba(255,255,255,.08); --wrap: 1240px; --ease: cubic-bezier(.2,.7,.2,1);
   --font-display: "Spectral SC", Georgia, "Times New Roman", serif; --font-body: "Golos Text", "Segoe UI", system-ui, sans-serif;
   color-scheme: dark; }
+/* Ultrawide, as in the guide: the column and the type grow a step from 2200 px; up to 2199 px nothing changes. */
+@media (min-width: 2200px) { :root { --wrap: 1560px; } html { font-size: 17px; } html .hero { min-height: 650px; } }
+@media (min-width: 3000px) { :root { --wrap: 1720px; } html { font-size: 18px; } html .hero { min-height: 720px; } }
 /* Светлая тема — как в гиде: localStorage wf-theme, без выбора — системная (prefers-color-scheme). Палитра как у светлой темы гида.
    Арт и текст на нём остаются ночными, как в гиде. */
 :root[data-theme="light"] { --bg: #f3f2ee; --fg: #17161a; --muted: #595650; --gold: #7d5c12; --gold-2: #7d5c12; --gold-ink: #ffffff;
@@ -274,7 +277,7 @@ CSS = '''
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--font-body); -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 1rem/1.55 var(--font-body); -webkit-font-smoothing: antialiased; }
 a { color: inherit; }
 img { display: block; max-width: 100%; }
 h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: .03em; line-height: 1.1; margin: 0; text-wrap: balance; }
