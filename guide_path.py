@@ -6,6 +6,9 @@ HUB = os.path.dirname(os.path.abspath(__file__))
 
 
 def guide_dir():
+    e = os.environ.get('GABELLA_GUIDE_DIR')   # an explicit guide checkout (a worktree of wow at the live main)
+    if e and os.path.isdir(os.path.join(e, 'assets', 'art')):
+        return e
     d = HUB
     while True:
         p = os.path.join(d, 'wow')
