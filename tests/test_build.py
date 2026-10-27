@@ -95,6 +95,35 @@ class HeadTest(unittest.TestCase):
             self.assertNotEqual(content.T[lang]['h1'], content.T['ru']['h1'], lang)
 
 
+class RedirectTest(unittest.TestCase):
+    """Временный редирект корней хаба на гид: превью и canonical как у страницы гида."""
+    def test_each_root_goes_to_guide_language(self):
+        for lang in content.LANGS:
+            html = build.render_redirect(lang)
+            to = '/wow/' if lang == 'ru' else f'/wow/{lang}/'
+            self.assertEqual(build.guide(lang), to)
+            self.assertIn(f'location.replace("{to}"+location.search+location.hash)', html, lang)
+            self.assertIn(f'<noscript><meta http-equiv="refresh" content="0;url={to}"></noscript>', html, lang)
+            self.assertIn(f'<link rel="canonical" href="https://gabella.site{to}">', html, lang)
+            self.assertIn(f'href="{to}"', html.split('<body>')[1], lang)
+            self.assertNotIn('noindex', html, lang)
+            self.assertNotIn('@@', html, lang)
+
+    def test_preview_tags_equal_guide(self):
+        for lang in content.LANGS:
+            html = build.render_redirect(lang)
+            _, _, tags = build.guide_head(lang)
+            for t in tags:
+                self.assertIn(t, html, lang)
+            self.assertRegex(html, r'<meta property="og:image" content="https://gabella\.site/wow/assets/og-\w+\.jpg')
+            self.assertIn(f'<meta property="og:url" content="https://gabella.site{build.guide(lang)}">', html, lang)
+
+    def test_hreflang_points_to_guide(self):
+        html = build.render_redirect('de')
+        self.assertIn('<link rel="alternate" hreflang="pt-BR" href="https://gabella.site/wow/pt/">', html)
+        self.assertIn('<link rel="alternate" hreflang="x-default" href="https://gabella.site/wow/">', html)
+
+
 class NotFoundTest(unittest.TestCase):
     """404.html: GitHub Pages отдаёт её на любой несуществующий адрес вне /wow/ (у гида своя)."""
     def test_page_per_language(self):
@@ -218,6 +247,18 @@ class SeoTest(unittest.TestCase):
         self.assertEqual(data['publisher']['sameAs'], ['https://discord.gg/ZGpznkX3Zw', 'https://t.me/gabella_wow'])
 
     def test_sitemap(self):
+        saved, build.REDIRECT = build.REDIRECT, False
+        try:
+            self._sitemap_full()
+        finally:
+            build.REDIRECT = saved
+
+    def test_sitemap_redirect_mode(self):
+        root = ET.fromstring(build.sitemap())
+        self.assertTrue(root.tag.endswith('sitemapindex'))
+        self.assertEqual([e.text for e in root.iter() if e.tag.endswith('loc')], ['https://gabella.site/wow/sitemap.xml'])
+
+    def _sitemap_full(self):
         root = ET.fromstring(build.sitemap())
         ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9', 'x': 'http://www.w3.org/1999/xhtml'}
         locs = [u.find('s:loc', ns).text for u in root.findall('s:url', ns)]

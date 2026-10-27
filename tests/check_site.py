@@ -41,15 +41,20 @@ def main():
     refs = set()
     for lang in C.LANGS:
         html = read(build.OUT[lang])
-        check(html == build.render(lang), f'{lang}: собранный файл устарел — запусти python build.py')
+        check(html == build.page(lang), f'{lang}: собранный файл устарел — запусти python build.py')
         check('@@' not in html, f'{lang}: остались @@')
-        check(f'<link rel="canonical" href="{build.url(lang)}">' in html, f'{lang}: canonical')
+        canon = C.SITE + build.guide(lang) if build.REDIRECT else build.url(lang)
+        check(f'<link rel="canonical" href="{canon}">' in html, f'{lang}: canonical')
         for other in [C.HREFLANG[l] for l in C.LANGS] + ['x-default']:
             check(f'hreflang="{other}"' in html, f'{lang}: нет hreflang {other}')
+        check(not build.REDIRECT or f'url={build.guide(lang)}"' in html, f'{lang}: meta refresh')
         check(os.path.exists(os.path.join(ROOT, 'assets', f'og-{lang}.jpg')), f'{lang}: нет og-{lang}.jpg')
         refs |= wow_refs(html)
     ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-    check(len(ET.fromstring(read('sitemap.xml')).findall('s:url', ns)) == len(C.LANGS), f'sitemap: не {len(C.LANGS)} URL')
+    if build.REDIRECT:
+        check(len(ET.fromstring(read('sitemap.xml')).findall('s:url', ns)) == 0, 'sitemap: корни хаба не должны быть в карте при редиректе')
+    else:
+        check(len(ET.fromstring(read('sitemap.xml')).findall('s:url', ns)) == len(C.LANGS), f'sitemap: не {len(C.LANGS)} URL')
     check(read('robots.txt').count('Sitemap:') == 2, 'robots: не 2 строки Sitemap')
     check(read('CNAME').strip() == 'gabella.site', 'CNAME')
     check(os.path.exists(os.path.join(ROOT, '.nojekyll')), '.nojekyll: нет файла — Pages включит Jekyll')

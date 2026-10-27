@@ -10,6 +10,9 @@ import content as C
 from guide_path import guide_dir
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+# ВРЕМЕННО (решение 27.10): корни хаба (/, /uk/, ... /pt/) перенаправляют на гид /wow/ того же языка, пока нет второй игры.
+# Откат: False (или git revert коммитов «Корни хаба → гид»), затем python build.py.
+REDIRECT = True
 OUT = {l: f'{C.PREFIX[l]}index.html' for l in C.LANGS}
 OUT_404 = {l: f'{C.PREFIX[l]}404.html' for l in C.LANGS}
 CF_BEACON_TOKEN = 'ee1d216e690040389063e8d72384c2c7'   # Cloudflare Web Analytics сайта gabella.site — тот же, что в гиде (wow/seo.py)
@@ -405,6 +408,12 @@ def beacon():
 
 
 def sitemap():
+    if REDIRECT:
+        # Корни хаба временно ведут на гид и не должны быть в карте (редирект + canonical на гид): отдаём индекс карт с картой гида.
+        return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+                '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+                f'<sitemap><loc>{C.SITE}/wow/sitemap.xml</loc></sitemap>\n'
+                '</sitemapindex>\n')
     alts = ''.join(f'<xhtml:link rel="alternate" hreflang="{C.HREFLANG[l]}" href="{url(l)}"/>' for l in C.LANGS)
     alts += f'<xhtml:link rel="alternate" hreflang="x-default" href="{C.SITE}/"/>'
     urls = ''.join(f'<url><loc>{url(l)}</loc>{alts}</url>\n' for l in C.LANGS)
@@ -473,6 +482,61 @@ def render(lang, nf=False):
     return versioned(page)
 
 
+def guide_head(lang):
+    """Теги превью, заголовок и описание берём из собранной страницы гида того же языка — корень хаба всегда показывает то же превью."""
+    path = os.path.join(guide_dir(), C.PREFIX[lang], 'index.html')
+    with open(path, encoding='utf-8') as f:
+        head = f.read().split('</head>', 1)[0]
+    tags = re.findall(r'<meta (?:property="og:|name="twitter:)[^>]*>', head)
+    title = re.search(r'<title>(.*?)</title>', head, re.S)
+    desc = re.search(r'<meta name="description" content="[^"]*">', head)
+    if not tags or not title or not desc or not any('og:image"' in t for t in tags):
+        sys.exit(f'build.py: в {path} нет og/twitter/title/description')
+    return title[1], desc[0], tags
+
+
+REDIRECT_JS = '<script>location.replace(@@TO@@+location.search+location.hash)</script>'
+
+
+def render_redirect(lang):
+    """Корень языка хаба = мгновенный переход на страницу гида этого языка. Превью (og/twitter) и canonical — как у страницы гида.
+    Скрипт сохраняет ?query и #hash; meta refresh лежит в <noscript> (без JS), чтобы не перебивать скрипт и не терять query/hash."""
+    to = guide(lang)
+    title, desc, tags = guide_head(lang)
+    alts = [f'<link rel="alternate" hreflang="{C.HREFLANG[l]}" href="{C.SITE}{guide(l)}">' for l in C.LANGS]
+    alts.append(f'<link rel="alternate" hreflang="x-default" href="{C.SITE}{C.GAMES[0]["path"]}">')
+    page = '\n'.join([
+        '<!doctype html>',
+        f'<html lang="{C.HREFLANG[lang]}">',
+        '<head>',
+        '<meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width,initial-scale=1">',
+        REDIRECT_JS.replace('@@TO@@', json.dumps(to)),
+        f'<noscript><meta http-equiv="refresh" content="0;url={to}"></noscript>',
+        f'<title>{title}</title>',
+        desc,
+        f'<link rel="canonical" href="{C.SITE}{to}">',
+        *alts,
+        '<meta name="theme-color" content="#050505">',
+        '<link rel="icon" href="/favicon.ico" sizes="48x48">',
+        '<link rel="icon" type="image/png" sizes="96x96" href="/wow/assets/icons/favicon-96.png">',
+        '<link rel="icon" type="image/png" sizes="192x192" href="/wow/assets/icons/icon-192.png">',
+        '<link rel="apple-touch-icon" href="/wow/assets/icons/apple-touch-icon.png">',
+        *tags,
+        '<style>body{margin:0;background:#050505;color:#ece6d8;font:1rem/1.5 system-ui,sans-serif;display:grid;place-items:center;min-height:100vh}a{color:#e0c27a}</style>',
+        '</head>',
+        '<body>',
+        f'<p><a href="{to}">{esc(C.T[lang]["open"])}</a></p>',
+        '</body>',
+        '</html>',
+        ''])
+    return versioned(page)
+
+
+def page(lang):
+    return render_redirect(lang) if REDIRECT else render(lang)
+
+
 NF_JS = r'''<script>
 (function () {
   if (/bot|crawl|spider|slurp|lighthouse|headless|google-|preview/i.test(navigator.userAgent) || navigator.webdriver) return;
@@ -515,7 +579,7 @@ def write(rel, text):
 
 def main():
     for lang in C.LANGS:
-        write(OUT[lang], render(lang))
+        write(OUT[lang], page(lang))
         write(OUT_404[lang], render_404(lang))
     write('sitemap.xml', sitemap())
     write('robots.txt', robots())
