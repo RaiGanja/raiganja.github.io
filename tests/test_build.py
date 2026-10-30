@@ -125,29 +125,44 @@ class RedirectTest(unittest.TestCase):
 
 
 class NotFoundTest(unittest.TestCase):
-    """404.html: GitHub Pages отдаёт её на любой несуществующий адрес вне /wow/ (у гида своя)."""
-    def test_page_per_language(self):
+    """404.html: GitHub Pages отдаёт её на любой несуществующий адрес вне /wow/ (у гида своя). Одна лёгкая страница на все языки."""
+    def test_block_per_language(self):
+        html = build.render_404()
         for lang in content.LANGS:
-            html = build.render_404(lang)
-            self.assertIn(f'<h1>{build.esc(content.T[lang]["nf_h"])}</h1>', html, lang)
-            self.assertIn('<meta name="robots" content="noindex">', html, lang)
-            self.assertNotIn('rel="canonical"', html, lang)
-            self.assertNotIn('hreflang="x-default"', html, lang)
-            self.assertNotIn('og:url', html, lang)
-            self.assertNotIn('@@', html, lang)
-            self.assertIn(f'href="{build.guide(lang)}"', html, lang)   # вход в гид на своём языке
-            self.assertNotIn("location.replace(P[w]", html, lang)       # корневой переход на язык не нужен
+            t = content.T[lang]
+            block = re.search(rf'<section lang="{content.HREFLANG[lang]}" data-k="{lang}">(.*?)</section>', html)
+            self.assertIsNotNone(block, lang)
+            self.assertIn(f'<h1>{build.esc(t["nf_h"])}</h1>', block[1], lang)
+            self.assertIn(f'<p class="why">{build.esc(t["nf_why"])}</p>', block[1], lang)
+            self.assertIn(f'href="{build.guide(lang)}"', block[1], lang)   # вход в гид на своём языке
+            self.assertIn(f':root[data-l="{lang}"] section[data-k="{lang}"]', html, lang)
+        self.assertEqual(html.count('<section '), len(content.LANGS))
 
-    def test_root_swaps_language(self):
-        ru = build.render_404('ru')
-        self.assertLess(ru.index("fetch('/' + w + '/404.html')"), ru.index('<title>'))
-        for lang in content.LANGS[1:]:
-            self.assertIn(f'"{lang}"', ru)
-            self.assertNotIn("fetch('/' + w", build.render_404(lang), lang)
+    def test_why_is_one_sentence(self):
+        for lang in content.LANGS:
+            why = content.T[lang]['nf_why']
+            self.assertTrue(why.endswith('.'), lang)
+            self.assertNotRegex(why[:-1], r'\.\s', lang)
 
-    def test_written(self):
-        self.assertEqual(build.OUT_404['ru'], '404.html')
-        self.assertEqual(build.OUT_404['de'], 'de/404.html')
+    def test_not_indexed_and_no_canonical(self):
+        html = build.render_404()
+        self.assertIn('<meta name="robots" content="noindex">', html)
+        for bad in ('rel="canonical"', 'hreflang=', 'og:url', 'application/ld+json', '@@', "fetch('/"):
+            self.assertNotIn(bad, html, bad)
+
+    def test_language_choice_order(self):
+        """Язык адреса → сохранённый gabella-lang → браузер (be/kk → ru) → en, до отрисовки; без JS видны все блоки."""
+        html = build.render_404()
+        js = re.search(r'<script>(.*?)</script>', html, re.S)[1]
+        self.assertLess(html.index('<script>'), html.index('<style>'))
+        order = [js.index(x) for x in ("location.pathname.match", "localStorage.getItem('gabella-lang')", 'navigator.languages', "l = l || 'en'")]
+        self.assertEqual(order, sorted(order))
+        self.assertIn("A = { be: 'ru', kk: 'ru' }", js)
+        self.assertIn("'" + ' '.join(content.LANGS) + "'", js)
+        self.assertIn(':root[data-l] section { display: none;', html)   # прячет только при выбранном языке
+
+    def test_only_root_file(self):
+        self.assertFalse(hasattr(build, 'OUT_404'))
 
 
 class BodyTest(unittest.TestCase):
@@ -193,20 +208,26 @@ class BodyTest(unittest.TestCase):
     def test_assets_have_version(self):
         """Всё под /assets/ и /wow/assets/ (и /favicon.ico) идёт с ?v=<хэш>: HTML no-cache, файлы у браузера 7 дней."""
         for lang in build.C.LANGS:
-            for html in (build.render(lang), build.render_404(lang)):
-                bare = re.findall(r'(?:/wow)?/assets/[\w./-]+\.(?:png|jpe?g|webp|avif|woff2|ico|svg)(?!\?v=\w{8})|/favicon\.ico(?!\?v=)', html)
-                self.assertEqual(bare, [], lang)
-                self.assertIn('/favicon.ico?v=', html)
-                self.assertRegex(html, r'/wow/assets/icons/icon-192\.png\?v=\w{8}')
-                self.assertRegex(html, r'content="https://gabella\.site/assets/og-\w+\.jpg\?v=\w{8}"')
+            html = build.render(lang)
+            bare = re.findall(r'(?:/wow)?/assets/[\w./-]+\.(?:png|jpe?g|webp|avif|woff2|ico|svg)(?!\?v=\w{8})|/favicon\.ico(?!\?v=)', html)
+            self.assertEqual(bare, [], lang)
+            self.assertIn('/favicon.ico?v=', html)
+            self.assertRegex(html, r'/wow/assets/icons/icon-192\.png\?v=\w{8}')
+            self.assertRegex(html, r'content="https://gabella\.site/assets/og-\w+\.jpg\?v=\w{8}"')
+
+    def test_404_assets_have_version(self):
+        html = build.render_404()
+        bare = re.findall(r'(?:/wow)?/assets/[\w./-]+\.(?:png|jpe?g|webp|avif|woff2|ico|svg)(?!\?v=\w{8})|/favicon\.ico(?!\?v=)', html)
+        self.assertEqual(bare, [])
+        self.assertRegex(html, r'content="https://gabella\.site/wow/assets/og/404\.jpg\?v=\w{8}"')
 
     def test_disclaimer(self):
         for lang in content.LANGS:
             self.assertIn(build.esc(content.T[lang]['disclaimer']), build.render(lang))
 
     def test_no_forbidden_words(self):
-        for lang in content.LANGS:
-            low = build.render(lang).lower()
+        for lang in content.LANGS + ['404']:
+            low = (build.render_404() if lang == '404' else build.render(lang)).lower()
             for w in (' ai ', ' ии ', 'claude', 'kaeris'):   # Discord разрешён с 23.10: ссылка в подвале
                 self.assertNotIn(w, low, (lang, w))
 

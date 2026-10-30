@@ -14,7 +14,6 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 # Откат: False (или git revert коммитов «Корни хаба → гид»), затем python build.py.
 REDIRECT = True
 OUT = {l: f'{C.PREFIX[l]}index.html' for l in C.LANGS}
-OUT_404 = {l: f'{C.PREFIX[l]}404.html' for l in C.LANGS}
 CF_BEACON_TOKEN = 'ee1d216e690040389063e8d72384c2c7'   # Cloudflare Web Analytics сайта gabella.site — тот же, что в гиде (wow/seo.py)
 
 # Подтверждение прав в поисковиках (Яндекс не используем — решение 23.10): значение content= из метатега кабинета; пусто — метатег не вставляется.
@@ -214,9 +213,9 @@ def tiles(lang):
     return ''.join(out)
 
 
-def body(lang, nf=False):
+def body(lang):
     t, g = C.T[lang], C.GAMES[0]
-    h1, lead = (t['nf_h'], t['nf_lead']) if nf else (t['h1'], t['lead'])
+    h1, lead = t['h1'], t['lead']
     return f'''<header class="top"><div class="wrap">
 <a class="logo" href="/{C.PREFIX[lang]}"><img class="mark" src="/wow/assets/brand/mark.webp" alt="" width="40" height="40"><span>Gabella</span></a>
 {lang_switch(lang)}
@@ -446,7 +445,7 @@ def versioned(page):
     return ASSET.sub(tag, page)
 
 
-def render(lang, nf=False):
+def render(lang):
     if len(C.GAMES) != 1:
         sys.exit('build.py: в GAMES больше одной игры — сначала нужна сетка игр (спека, «Следующая игра»)')
     t = C.T[lang]
@@ -456,7 +455,7 @@ def render(lang, nf=False):
     subs = {
         '/*@@JS@@*/': js(),
         '/*@@CSS@@*/': css(),
-        '@@BODY@@': body(lang, nf),
+        '@@BODY@@': body(lang),
         '@@LD@@': json_ld(lang),
         '@@HREFLANG@@': hreflang(),
         '@@OG_ALTLOC@@': alt_loc,
@@ -475,7 +474,7 @@ def render(lang, nf=False):
     page = page.replace('</body>', beacon() + '</body>', 1)
     verify = ''.join(f'<meta name="{k}" content="{esc(v)}">\n' for k, v in VERIFY.items() if v)
     page = page.replace('</head>', verify + '</head>', 1)
-    if lang == 'ru' and not nf:
+    if lang == 'ru':
         page = page.replace('<meta name="viewport"', auto_lang() + '<meta name="viewport"', 1)
     if '@@' in page:
         sys.exit(f'build.py: в странице {lang} остались плейсхолдеры @@')
@@ -537,37 +536,81 @@ def page(lang):
     return render_redirect(lang) if REDIRECT else render(lang)
 
 
-NF_JS = r'''<script>
+# 404.html в корне: GitHub Pages отдаёт её на любой несуществующий адрес вне /wow/ (у гида своя), один файл на всех.
+# Лёгкая страница, как корневая 404 гида (wow/build_guides.py, not_found_light): у каждого языка свой блок, скрипт в <head>
+# выбирает один — язык адреса (/en/...), сохранённый выбор gabella-lang, язык браузера (be/kk → ru), иначе английский.
+# Без JS видны все блоки списком. Превью ссылки одно на все языки (og/404.jpg гида: знак и имя, без слов).
+NOT_FOUND = r"""<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>@@TITLE@@ · Gabella</title>
+<meta name="theme-color" content="#050505">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Gabella">
+<meta property="og:title" content="Gabella · WoW Forever">
+<meta property="og:description" content="gabella.site">
+<meta property="og:image" content="https://gabella.site/wow/assets/og/404.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/wow/assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/wow/assets/icons/apple-touch-icon.png">
+<script>
 (function () {
-  if (/bot|crawl|spider|slurp|lighthouse|headless|google-|preview/i.test(navigator.userAgent) || navigator.webdriver) return;
-  var P = @@LANGS@@, A = { be: 'ru', kk: 'ru' }, m = location.pathname.match(/^\/([a-z]{2})\//), w = m && m[1];
-  if (P.indexOf(w) < 0) {
-    w = null;
-    try { w = localStorage.getItem('gabella-lang'); } catch (e) {}
-    var L = navigator.languages || [navigator.language];
-    for (var i = 0; i < L.length && P.indexOf(w) < 0 && w !== 'ru'; i++) { w = String(L[i] || '').toLowerCase().split('-')[0]; w = A[w] || w; }
-    if (P.indexOf(w) < 0 && w !== 'ru') w = 'en';
-  }
-  if (P.indexOf(w) < 0) return;
-  document.documentElement.style.visibility = 'hidden';
-  fetch('/' + w + '/404.html').then(function (r) { if (!r.ok) throw r; return r.text(); })
-    .then(function (h) { document.open(); document.write(h); document.close(); })
-    .catch(function () { document.documentElement.style.visibility = ''; });
+  var L = '@@LANGS@@'.split(' '), A = { be: 'ru', kk: 'ru' }, m = location.pathname.match(/^\/([a-z]{2})\//), l = m && L.indexOf(m[1]) > -1 ? m[1] : '', d = document.documentElement, t = null;
+  if (!l) { try { var w = localStorage.getItem('gabella-lang'); if (L.indexOf(w) > -1) l = w; } catch (e) {} }
+  for (var i = 0, n = navigator.languages || [navigator.language || '']; !l && i < n.length; i++) { var c = String(n[i]).toLowerCase().split('-')[0]; c = A[c] || c; if (L.indexOf(c) > -1) l = c; }
+  l = l || 'en';
+  var T = @@TITLES@@;   // the chosen language: lang and title of the page follow it (screen readers, tabs)
+  d.setAttribute('data-l', l); d.lang = T[l][0]; document.title = T[l][1] + ' · Gabella';
+  try { t = localStorage.getItem('wf-theme'); } catch (e) {}   // the site theme (hub and guide), else the system one
+  if (t === 'light' || t === 'dark') { d.setAttribute('data-theme', t); if (t === 'light') document.querySelector('meta[name="theme-color"]').content = '#f6f1e6'; }
 })();
 </script>
-'''
+<style>
+:root { color-scheme: dark; --bg: #050505; --fg: #ece6d8; --muted: #a8a294; --gold: #c9a54a; --line: #2a2820; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { color-scheme: light; --bg: #f6f1e6; --fg: #1d1a14; --muted: #5f594b; --gold: #7a5a14; --line: #d8cfba; } }
+:root[data-theme="light"] { color-scheme: light; --bg: #f6f1e6; --fg: #1d1a14; --muted: #5f594b; --gold: #7a5a14; --line: #d8cfba; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: var(--bg); color: var(--fg); font: 1rem/1.5 Georgia, "Times New Roman", serif; }
+main { width: 100%; max-width: 520px; }
+.brand { margin: 0 0 20px; font-size: .85rem; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+section { padding: 14px 0; border-top: 1px solid var(--line); }
+h1 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 600; line-height: 1.2; }
+section p { margin: 0 0 8px; }
+.why { color: var(--muted); }
+a { color: var(--gold); text-underline-offset: 3px; }
+:root[data-l] section { display: none; border-top: 0; padding-top: 0; }
+@@SHOW@@
+</style>
+</head>
+<body>
+<main>
+<p class="brand">Gabella · WoW Forever</p>
+@@BLOCKS@@
+</main>
+</body>
+</html>
+"""
 
 
-def render_404(lang):
-    """404.html: главная хаба с заголовком «Страница не найдена» — не индексируется и не каноническая.
-    Корневая (русская) до отрисовки подменяет себя страницей языка из адреса, выбора в меню или браузера."""
-    page = render(lang, nf=True)
-    page = re.sub(r'<link rel="(canonical|alternate)"[^>]*>\n', '', page)
-    page = re.sub(r'<meta property="og:(url|locale:alternate)"[^>]*>\n', '', page)
-    page = re.sub(r'<script type="application/ld\+json">.*?</script>\n?', '', page, flags=re.S)
-    page = page.replace(f'<title>{esc(C.T[lang]["title"])}</title>', f'<title>{esc(C.T[lang]["nf_h"])} · Gabella</title>', 1)
-    js = NF_JS.replace('@@LANGS@@', json.dumps([l for l in C.LANGS if l != 'ru'])) if lang == 'ru' else ''
-    return page.replace('<meta charset="utf-8">\n', '<meta charset="utf-8">\n' + js + '<meta name="robots" content="noindex">\n', 1)
+def render_404():
+    """Корневая 404.html: по блоку на язык (заголовок, причина, вход в гид на этом языке), см. NOT_FOUND."""
+    blocks = '\n'.join(
+        f'<section lang="{C.HREFLANG[l]}" data-k="{l}"><h1>{esc(C.T[l]["nf_h"])}</h1><p class="why">{esc(C.T[l]["nf_why"])}</p>'
+        f'<p><a href="{guide(l)}">{C.AUTONYM[l]} · gabella.site{guide(l)}</a></p></section>'
+        for l in C.LANGS)
+    titles = json.dumps({l: [C.HREFLANG[l], C.T[l]['nf_h']] for l in C.LANGS}, ensure_ascii=False)
+    show = '\n'.join(f':root[data-l="{l}"] section[data-k="{l}"] {{ display: block; }}' for l in C.LANGS)
+    page = (NOT_FOUND.replace('@@TITLE@@', esc(C.T['ru']['nf_h'])).replace('@@LANGS@@', ' '.join(C.LANGS))
+            .replace('@@TITLES@@', titles).replace('@@SHOW@@', show).replace('@@BLOCKS@@', blocks))
+    if '@@' in page:
+        sys.exit('build.py: в 404.html остались плейсхолдеры @@')
+    return versioned(page)
 
 
 def write(rel, text):
@@ -580,7 +623,7 @@ def write(rel, text):
 def main():
     for lang in C.LANGS:
         write(OUT[lang], page(lang))
-        write(OUT_404[lang], render_404(lang))
+    write('404.html', render_404())
     write('sitemap.xml', sitemap())
     write('robots.txt', robots())
     write(f'{INDEXNOW_KEY}.txt', INDEXNOW_KEY)

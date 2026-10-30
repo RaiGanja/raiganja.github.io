@@ -82,7 +82,7 @@ T = {
         'og_start': 'Старт 5 ноября 2026',
         'lang_nav': 'Язык',
         'nf_h': 'Страница не найдена',
-        'nf_lead': 'Такой страницы нет: ссылка устарела или в адресе опечатка. Разделы гида ниже.',
+        'nf_why': 'Такой страницы нет: ссылка устарела или в адресе опечатка.',
     },
     'en': {
         'title': 'Gabella — Game Guides: WoW Forever',
@@ -104,7 +104,7 @@ T = {
         'og_start': 'Launch November 4–5, 2026',
         'lang_nav': 'Language',
         'nf_h': 'Page not found',
-        'nf_lead': 'This page does not exist: the link is outdated or the address has a typo. The guide sections are below.',
+        'nf_why': 'This page does not exist: the link is outdated or the address has a typo.',
     },
     'uk': {
         'title': 'Gabella — гайди з ігор: WoW Forever',
@@ -126,7 +126,7 @@ T = {
         'og_start': 'Старт 5 листопада 2026',
         'lang_nav': 'Мова',
         'nf_h': 'Сторінку не знайдено',
-        'nf_lead': 'Такої сторінки немає: посилання застаріло або в адресі помилка. Розділи гіда нижче.',
+        'nf_why': 'Такої сторінки немає: посилання застаріло або в адресі помилка.',
     },
     'de': {
         'title': 'Gabella — Spiel-Guides: WoW Forever',
@@ -148,7 +148,7 @@ T = {
         'og_start': 'Start am 5. November 2026',
         'lang_nav': 'Sprache',
         'nf_h': 'Seite nicht gefunden',
-        'nf_lead': 'Diese Seite gibt es nicht: Der Link ist veraltet oder die Adresse hat einen Tippfehler. Die Bereiche des Guides findest du unten.',
+        'nf_why': 'Diese Seite gibt es nicht: Der Link ist veraltet oder die Adresse hat einen Tippfehler.',
     },
     'fr': {
         'title': 'Gabella — guides de jeux : WoW Forever',
@@ -170,7 +170,7 @@ T = {
         'og_start': 'Lancement le 5 novembre 2026',
         'lang_nav': 'Langue',
         'nf_h': 'Page introuvable',
-        'nf_lead': 'Cette page n’existe pas : le lien est périmé ou l’adresse contient une faute. Les sections du guide sont ci-dessous.',
+        'nf_why': 'Cette page n’existe pas : le lien est périmé ou l’adresse contient une faute.',
     },
     'es': {
         'title': 'Gabella — guías de juegos: WoW Forever',
@@ -192,7 +192,7 @@ T = {
         'og_start': 'Lanzamiento: 4–5 de noviembre de 2026',
         'lang_nav': 'Idioma',
         'nf_h': 'Página no encontrada',
-        'nf_lead': 'Esta página no existe: el enlace está desactualizado o la dirección tiene una errata. Abajo tienes las secciones de la guía.',
+        'nf_why': 'Esta página no existe: el enlace está desactualizado o la dirección tiene una errata.',
     },
     'pt': {
         'title': 'Gabella — guias de jogos: WoW Forever',
@@ -214,7 +214,7 @@ T = {
         'og_start': 'Lançamento em 4 de novembro de 2026',
         'lang_nav': 'Idioma',
         'nf_h': 'Página não encontrada',
-        'nf_lead': 'Esta página não existe: o link está desatualizado ou o endereço tem um erro de digitação. As seções do guia estão abaixo.',
+        'nf_why': 'Esta página não existe: o link está desatualizado ou o endereço tem um erro de digitação.',
     },
     'it': {
         'title': 'Gabella — guide di gioco: WoW Forever',
@@ -236,7 +236,7 @@ T = {
         'og_start': 'Uscita il 5 novembre 2026',
         'lang_nav': 'Lingua',
         'nf_h': 'Pagina non trovata',
-        'nf_lead': 'Questa pagina non esiste: il link è vecchio o l’indirizzo contiene un errore. Le sezioni della guida sono qui sotto.',
+        'nf_why': 'Questa pagina non esiste: il link è vecchio o l’indirizzo contiene un errore.',
     },
     'pl': {
         'title': 'Gabella — poradniki do gier: WoW Forever',
@@ -258,6 +258,6 @@ T = {
         'og_start': 'Start 5 listopada 2026',
         'lang_nav': 'Język',
         'nf_h': 'Nie znaleziono strony',
-        'nf_lead': 'Ta strona nie istnieje: link jest nieaktualny albo w adresie jest literówka. Sekcje poradnika są poniżej.',
+        'nf_why': 'Ta strona nie istnieje: link jest nieaktualny albo w adresie jest literówka.',
     },
 }
