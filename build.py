@@ -547,6 +547,7 @@ NOT_FOUND = r"""<!doctype html>
 <meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>@@TITLE@@ · Gabella</title>
+<meta name="description" content="@@DESC@@">
 <meta name="theme-color" content="#050505">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Gabella">
@@ -606,7 +607,7 @@ def render_404():
         for l in C.LANGS)
     titles = json.dumps({l: [C.HREFLANG[l], C.T[l]['nf_h']] for l in C.LANGS}, ensure_ascii=False)
     show = '\n'.join(f':root[data-l="{l}"] section[data-k="{l}"] {{ display: block; }}' for l in C.LANGS)
-    page = (NOT_FOUND.replace('@@TITLE@@', esc(C.T['ru']['nf_h'])).replace('@@LANGS@@', ' '.join(C.LANGS))
+    page = (NOT_FOUND.replace('@@TITLE@@', esc(C.T['ru']['nf_h'])).replace('@@DESC@@', esc(C.T['ru']['nf_why'])).replace('@@LANGS@@', ' '.join(C.LANGS))
             .replace('@@TITLES@@', titles).replace('@@SHOW@@', show).replace('@@BLOCKS@@', blocks))
     if '@@' in page:
         sys.exit('build.py: в 404.html остались плейсхолдеры @@')
